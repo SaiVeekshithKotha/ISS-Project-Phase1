@@ -102,7 +102,7 @@ body {
     border: solid 3px none;
     margin-left: 30%;
     border-radius: 16px;
-    width:14%;
+    width:25%;
     padding:0.5%;
     text-align: center;
     background-color: rgb(4, 4, 4);
@@ -127,11 +127,20 @@ body {
     display: flex;
     justify-content:space-around;
     flex-direction: column;
+    margin-left: 10%;
     /* align-items: center; */
 }
 
 .backgrnd {
-    background-image:linear-gradient(white,cyan)
+    background-image:linear-gradient(white,cyan);
+    display:flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.image {
+    margin-right: 10%;
+
 }
 
 .matter > .para {
