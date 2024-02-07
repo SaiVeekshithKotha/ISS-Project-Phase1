@@ -3,6 +3,7 @@ body {
     /* background-color: hsla(280, 90%, 74%, 0.2); */
     background-image: url(https://wallpapers.com/images/featured/space-sjryfre8k8f6i3ge.jpg);
     background-size: cover;
+    background-repeat: no-repeat;
 }
 p {
     text-align: center;
@@ -45,7 +46,7 @@ input {
 }
 
 ::placeholder{
-    color: rgb(0, 0, 0);
+    color: rgb(75, 74, 74);
 }
 
 div.register > div.form > div.buttons > button {
@@ -57,8 +58,24 @@ div.register > div.form > div.buttons > button {
     cursor: pointer;
 
 }
+
+button {
+    padding: 5%;
+    text-align: center;
+    font-size: larger;
+    border-radius: 10px;
+    border-color: rgba(255, 255, 255, 0.786);
+    background-color:black;
+    color:white;
+
+}
 button:hover {
     transform: scale(1.1);
+}
+
+input:hover {
+    /* outline-color: aqua; */
+    border-color: aqua 1px solid;
 }
 
 .buttons {
@@ -77,5 +94,5 @@ button:hover {
 .flex-form > div {
     flex: 3;
     /* flex-grow: 2; */
-    padding: 10%;
+    padding: 5%;
 }
