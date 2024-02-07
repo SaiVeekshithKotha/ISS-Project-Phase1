@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style3.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
+        rel="stylesheet">
+        <style>
+            .image-grid {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr); /* Three columns with equal width */
+                gap: 10px; /* Adjust the gap between images as needed */
+            }
+    
+            .image-grid img {
+                width: 100%; /* Make sure images fill the grid cells */
+                height: auto; /* Maintain the aspect ratio of the images */
+                border-radius: 8px; /* Optional: Add border-radius for rounded corners */
+            }
+        </style>
+    </head>
+    <body>
+        <div class="a">
+          Video Page
+        </div>
+        <div class="b">
+          <h2>Image Grid</h2>
+          <div class="image-grid">
+            <img src="image1.jpeg" alt="Image 1">
+            <img src="image2.jpeg" alt="Image 2">
+            <img src="image3.jpeg" alt="Image 3">
+            <img src="image4.jpeg" alt="Image 4">
+            <img src="image5.jpeg" alt="Image 5">
+            <img src="image6.jpeg" alt="Image 6">
+        </div>
+        </div>
+         
+        <div class="b">
+            <h2>Preview Video</h2>
+            <video width="640" height="360" controls>
+                <source src="video.mp4" type="video/mp4">
+                <!-- <source src="your-video-file.webm" type="video/webm">
+                <source src="your-video-file.ogv" type="video/ogg"> -->
+                Your browser does not support the video tag.
+            </video>
+            
+        </div>
+    </body>
+</html>

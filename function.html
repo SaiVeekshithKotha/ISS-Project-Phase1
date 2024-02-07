@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style2.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="a">
+        Eiffel
+    </div>
+    <div class="d">
+        <div class="b">
+            A photos-to-video slideshow converter is a versatile tool that transforms a collection of static images into
+            dynamic video presentations. This software typically allows users to customize transition effects, add music
+            or narration, and set the duration of each image display. With user-friendly interfaces, these converters
+            enable effortless creation of engaging visual stories, making it an ideal solution for personal memories,
+            professional presentations, or social media content. The conversion process seamlessly merges photographs
+            into a cohesive video, providing a captivating way to share and relive moments.
+
+        </div>
+        <div>
+            <img src="whatever.jpg" class="c">
+        </div>
+    </div>
+    <div>
+        <h2 class="e">1.Upload Images</h2>
+    </div>
+    <div>
+        <div class="g">
+            <div class="drop-container" id="dropContainer">
+                <p class="drop-message">Drag & Drop images here or click to select</p>
+                <input type="file" id="fileInput" multiple>
+                <div id="previewContainer"></div>
+            </div>
+
+            <script src="script.js"></script>
+        </div>
+    </div>
+    <div>
+       <h2 class="h"> 2.Add background music </h2>
+    </div>
+     
+    <div class="i">
+        <div class="audio-container">
+            <input type="file" id="audioInput" accept="audio/*" style="display: none;" onchange="handleAudioFile()">
+            <button onclick="openAudioFileInput()">Select Audio</button>
+            <p id="selectedAudioName"></p>
+            <div id="audioControls">
+                <button id="playPauseButton" onclick="togglePlayPause()">
+                    <span id="playIcon">▶️</span>
+                    <span id="pauseIcon" style="display: none;">⏸</span>
+                </button>
+            </div>
+        </div>
+    
+        <script src="script2.js"></script>
+    </div>
+
+    <div>
+        <h2 class="j">3.Create Video</h2>
+    </div>
+
+    <div>
+       <a href="video.html">
+        <div class="k">
+            create
+        </div>
+        <br><br><br>
+       </a>
+    </div>
+
+</body>
