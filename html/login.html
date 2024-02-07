@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In Page</title>
+    <link
+      rel="stylesheet"
+      href="styles/styleregister.css"
+    />
+    <script>
+        function loginsuccessfull(){
+          alert("Login Successfull")
+        }
+      </script>
+  </head>
+  <body>
+    <p>Log In</p>
+    <div class="register">
+      <div class="form">
+        <form onsubmit="loginsuccessfull()">
+          <div class="flex-form">
+            <div>
+              <b style="color: rgb(13, 13, 13);">Username : <br></b>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter Your Username"
+                required
+              />
+            </div>
+            <div>
+              <b>Password : <br></b>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder=" Enter Your Password"
+                required
+              />
+            </div>
+          </div>
+          <div class="buttons">
+            <div>
+              <button type="submit" >LogIn</button>
+            </div>
+            <!-- <div>
+              <button type="reset">Reset</button>
+            </div> -->
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
