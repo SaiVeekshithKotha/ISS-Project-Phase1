@@ -10,8 +10,13 @@
     />
     <script>
       function Registersuccessfull(){
-        alert("Registered Successfully")
-      }
+        event.preventDefault();
+        console.log("Registration successful!");
+        document.getElementById('register').innerHTML = "Registered Successfully!";
+        setTimeout(function(){
+                window.location.href = "function.html";
+            }, 3000);
+        }
     </script>
   </head>
   <body>
@@ -64,11 +69,14 @@
           </div>
           <div class="buttons">
             <div>
-              <button type="submit">Register</button>
+              <button type="submit" ">Register</button>
             </div>
+            
             <!-- <div>
               <button type="reset">Reset</button>
             </div> -->
+          </div>
+          <div id="register" style="color: aliceblue;">
           </div>
         </form>
       </div>

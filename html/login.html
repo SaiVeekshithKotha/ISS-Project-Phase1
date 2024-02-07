@@ -10,7 +10,22 @@
     />
     <script>
         function loginsuccessfull(){
-          alert("Login Successfull")
+          event.preventDefault(); // Prevent the default form submission behavior
+
+            // Get the entered username and password
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Check username and password
+             if (username === "admin" && password === "admin") {
+                document.getElementById('register').innerHTML = "Admin Login Success";
+            } else {
+              document.getElementById('register').innerHTML = "Login Successful"
+            }   
+
+            setTimeout(function(){
+                window.location.href = "function.html";
+            }, 3000);
         }
       </script>
   </head>
@@ -44,6 +59,9 @@
           <div class="buttons">
             <div>
               <button type="submit" >LogIn</button>
+            </div>
+            <div class="replace">
+
             </div>
             <!-- <div>
               <button type="reset">Reset</button>
