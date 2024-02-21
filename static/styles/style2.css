@@ -1,0 +1,154 @@
+body {
+    background-image:linear-gradient(white,cyan);
+}
+.a
+{
+    font-family: 'Bebas Neue', sans-serif;
+    font-size:80px;
+    display: flex;
+    justify-content: center;
+}
+.d
+{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+.b
+{
+    font-family: Habibi;
+    font-size: 25px;
+    width:30%;
+    margin-top:93px;
+    margin-left:170px;
+}
+
+.c
+{
+    width:500px;
+    height:500px;
+    margin-left: 400px;
+    margin-top:70px;
+    
+}
+
+.e
+{
+    font-family: Arial, Helvetica, sans-serif;
+    /* margin-top: 100px;
+    margin-left:130px; */
+    text-align: center;
+}
+
+.g
+{
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+     /* margin-top :50px;
+     position: relative;
+    right:600px;
+    margin-bottom: 50px; */
+    text-align: center;
+    
+}
+
+.drop-container {
+    border: 2px dashed #ccc;
+    padding: 20px;
+    text-align: center;
+    cursor: pointer;
+}
+
+.drop-message {
+    font-size: 16px;
+    margin: 0;
+    color: #555;
+}
+
+#previewContainer {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
+
+.preview-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin: 5px;
+}
+
+.h
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 25px;
+    /* margin-left:120px;
+    margin-top:100px; */
+    text-align: center;
+}
+
+.i
+{
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+   /* margin-top: 50px;
+   position:relative;
+   right:650px; */
+    text-align: center;
+}
+.audio-container {
+    text-align: center;
+}
+
+button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#selectedAudioName {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #555;
+}
+
+#audioControls {
+    margin-top: 10px;
+}
+
+#playPauseButton {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+#playIcon,
+#pauseIcon {
+    margin-right: 5px;
+}
+
+#pauseIcon {
+    display: none;
+}
+
+.j
+{
+    font-family: Arial, Helvetica, sans-serif;
+    /* margin-left:120px; */
+    text-align: center;
+    font-size:25px;
+}
+
+.k
+{
+   font-size:30px;
+    /* margin-left: 120px; */
+    text-align: center;
+}
