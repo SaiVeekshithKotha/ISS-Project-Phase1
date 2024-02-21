@@ -1,8 +1,10 @@
-from flask import Flask, render_template, redirect, url_for, request
+from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 import pymysql
 
 app = Flask(__name__)
 app.secret_key='your_secret_key'
+jwt = JWTManager(app)
 
 mysql_host = 'localhost'
 mysql_user = 'root'
@@ -15,10 +17,14 @@ connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_pa
 
 @app.route('/')
 def welcome():
+    access_token_cookie = request.cookies.get('access_token_cookie')
+    if access_token_cookie:
+        try:
+
     return render_template('index.html')
 
-@app.route('/registration.html',methods=['GET','POST'])
-def register():
+@app.route('/registration',methods=['GET','POST'])
+def registration():
     if request.method == 'GET':
         return render_template('registration.html')
     elif request.method == 'POST':
@@ -38,11 +44,11 @@ def register():
                 ;"""
                 cursor.execute(sql1, (username,email,name,password))
                 connection.commit()
-                return render_template('function.html')
+                return redirect(url_for('login'))
             
 
 
-@app.route('/login.html', methods=['GET','POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     if request.method == 'GET':
         return render_template('login.html')
@@ -59,14 +65,15 @@ def login():
                 return render_template('function.html')
             else:
                 error = 'Invalid username or password'
-                return render_template('login.html', error=error)
+                # return render_template('login.html', error=error)
+                return '<h1>User not found.<h1>'
     
 
-@app.route('/function.html', methods=['GET', 'POST'])
+@app.route('/function', methods=['GET', 'POST'])
 def function():
     return render_template('function.html')
 
-@app.route('/video.html', methods=['GET', 'POST'])
+@app.route('/video', methods=['GET', 'POST'])
 def video():
     return render_template('video.html')
 
