@@ -152,3 +152,38 @@ button {
     /* margin-left: 120px; */
     text-align: center;
 }
+.topbar {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-around;
+    background-color:white;
+    /* border-radius: 25px; */
+    /* width: 100%; */
+    height:10px;
+    align-items: center;
+    padding: 3%;
+}
+
+.logout {
+    background-color: rgb(5, 5, 5);
+    border-radius: 25px;
+    padding:3px;
+    font-size: 15px;
+    margin-right: 0.3%;
+}
+
+.logout a {
+    float:right;
+    color: rgb(255, 255, 255);
+    text-align: center;
+    padding: 7px 8px;
+    font-size: 17px;
+}
+
+.logout a:hover {
+    background-color: rgba(240, 243, 240, 0.46);
+    color: white;
+    border-radius: 25px;
+}

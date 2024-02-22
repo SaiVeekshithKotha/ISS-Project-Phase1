@@ -13,11 +13,25 @@
 </head>
 
 <body>
-    <div class="a">
-        Eiffel
+    <div class="topbar">
+        <div class="a">
+            Eiffel
+        </div>
+        <div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="logout">
+            <a href="{{url_for('logout')}}" target="_blank" style="text-decoration: none;color: white;">Logout</a>
+        </div>
     </div>
     <div class="d">
         <div class="b">
+            <div style="width: 40%;padding: 5%;">
+                {%if userName %}
+                <h2 style="color: tomato;font: 50;">Hey! {{userName}}</h2>
+                {%endif%}
+
+            </div>
             Converts photos into dynamic videos with transitions, music, and customizable durations for engaging storytelling.
 
         </div>
