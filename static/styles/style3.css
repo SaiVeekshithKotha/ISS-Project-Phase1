@@ -17,3 +17,25 @@ body {
  margin-top: 25px; */
  text-align: center;
 }
+
+.h
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 25px;
+    /* margin-left:120px;
+    margin-top:100px; */
+    text-align: center;
+}
+
+.i
+{
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+   /* margin-top: 50px;
+   position:relative;
+   right:650px; */
+    text-align: center;
+}

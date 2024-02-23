@@ -40,6 +40,27 @@
         </div>
 
         <br><br><hr style="width: 70%;"><br><br>
+
+        <div>
+            <h2 class="h"> Add background music </h2>
+         </div>
+          
+         <div class="i">
+             <div class="audio-container">
+                 <input type="file" id="audioInput" accept="audio/*" style="display: none;" onchange="handleAudioFile()">
+                 <button onclick="openAudioFileInput()">Select Audio</button>
+                 <p id="selectedAudioName"></p>
+                 <div id="audioControls">
+                     <button id="playPauseButton" onclick="togglePlayPause()">
+                         <span id="playIcon">▶️</span>
+                         <span id="pauseIcon" style="display: none;">⏸</span>
+                     </button>
+                 </div>
+             </div>
+         
+             <script src="url_for('static', filename='script'script2.js)"></script>
+         </div>
+         <br><br><hr style="width: 70%;"><br><br>
          
         <div class="b">
             <h2>Preview Video</h2>
