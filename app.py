@@ -65,13 +65,16 @@ def login():
             sql = "SELECT * FROM Users WHERE Username = %s"
             cursor.execute(sql, (username))
             user = cursor.fetchone()
-            retrieve_password = user['Password']
-            if user and check_password_hash(retrieve_password,password):
-                return render_template('function.html',userName=username)
+            if user is not None:
+                retrieve_password = user['Password']
+                if check_password_hash(retrieve_password,password):
+                     return render_template('function.html',userName=username)
+                else:
+                    error = "Invalid username or password."
+                    return render_template('login.html', error=error)
             else:
-                error = 'Invalid username or password'
+                error = "Username doesn't exist."
                 return render_template('login.html', error=error)
-
     return render_template('login.html')   
     
 
