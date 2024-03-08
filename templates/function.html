@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon-32x32.png') }}" type="images">
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/style2.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Habibi&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="topbar">
+        <div class="a">
+            Eiffel
+        </div>
+        <div>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        </div>
+        <div class="logout">
+            <a href="{{url_for('logout')}}" style="text-decoration: none;color: white;">Logout</a>
+        </div>
+    </div>
+    <div class="d">
+        <div class="b">
+            <div style="width: 40%;padding: 5%;">
+                {%if userName %}
+                <h2 style="color: tomato;font: 50;">Hey! {{userName}}</h2>
+                {%endif%}
+
+            </div>
+            {%if userName %}
+            <div id="username" style="display: none;">{{ userName }}</div>
+            {%endif%}
+
+            Converts photos into dynamic videos with transitions, music, and customizable durations for engaging
+            storytelling.
+
+        </div>
+        <div>
+            <img src="{{url_for('static', filename='images/whatever.jpg')}}" class="c">
+        </div>
+    </div>
+    <br><br>
+    <hr style="width: 70%;"><br><br>
+    <div>
+        <h2 class="e">1.Upload Images</h2>
+    </div>
+    <div>
+        <div class="g">
+
+            <style>
+                .uploaded-image {
+                    width: 300px;
+                    height: auto;
+                    margin-bottom: 20px;
+                    margin-right: 20px;
+                }
+
+                .drop-zone {
+                    border: 2px dashed #ccc;
+                    width: 300px;
+                    height: 150px;
+                    margin: 20px 0;
+                    padding: 20px;
+                    box-sizing: border-box;
+                    text-align: center;
+                    cursor: pointer;
+                }
+
+                .drop-zone.dragover {
+                    background-color: #f0f0f0;
+                }
+
+                #file-input {
+                    display: none;
+                }
+            </style>
+
+            <div id="drop-zone" class="drop-zone" style="margin:20px auto;" ondragover="handleDragOver(event)"
+                ondrop="handleDrop(event)" onclick="openFileSelector() " onchange="handleFiles(this.files)">
+                Drag & drop images here or click to select
+
+                <input type="file" id="file-input" name="images" multiple>
+            </div>
+
+            <input type="file" id="browse-button" name="images" value="uploadFiles"
+                style="margin-left: 165px; margin-top: 25px;" multiple onchange="handleFiles(this.files)">
+
+            <!-- <div>
+                <form action="/upload" method="POST" style="text-align: center;" enctype="multipart/form-data">
+
+                    <input type="submit" value="Upload">
+                </form>
+
+            </div> -->
+
+            <script>
+                var username = "{{ userName }}";
+
+                function handleDragOver(event) {
+                    event.preventDefault();
+                    event.dataTransfer.dropEffect = 'copy';
+                    event.target.classList.add('dragover');
+                }
+
+                function handleDrop(event) {
+                    event.preventDefault();
+                    event.target.classList.remove('dragover');
+                    var files = event.dataTransfer.files;
+                    handleFiles(files);
+                }
+
+
+                function openFileSelector() {
+                    document.getElementById('file-input').click();
+                }
+
+
+                function handleFiles(files) {
+                    uploadFiles(files, username);
+                }
+
+
+                function uploadFiles(files, username) {
+                    var form = new FormData();
+
+                    for (var i = 0; i < files.length; i++) {
+                        form.append('images', files[i]);
+                    }
+
+                    form.append('username', username);
+                    var xhr = new XMLHttpRequest();
+                    xhr.open('POST', '/upload', true);
+                    xhr.onload = function () {
+                        if (xhr.status === 200) {
+                            displayUploadedImages();
+                        } else {
+                            alert('Error uploading images. Please try again.');
+                        }
+                    };
+                    xhr.send(form);
+                }
+                function displayUploadedImages() {
+                    var uploadedImagesDiv = document.getElementById('uploaded-images');
+                    uploadedImagesDiv.innerHTML = '';  // Clear previous content
+
+                    var xhr = new XMLHttpRequest();
+                    xhr.onreadystatechange = function () {
+                        if (xhr.readyState == 4) {
+                            if (xhr.status === 200) {
+                                var images = xhr.response.images;
+                                if (images) {
+                                    images.forEach(function (imageData) {
+                                        var imageFormat = imageData.format;
+                                        var imageBlob = new Blob([base64ToArrayBuffer(imageData.data)], { type: 'image/' + imageFormat });
+
+                                        var imgElement = document.createElement('img');
+                                        imgElement.src = URL.createObjectURL(imageBlob);
+                                        imgElement.classList.add('uploaded-image');  // Apply any additional styling
+
+                                        uploadedImagesDiv.appendChild(imgElement);
+                                    });
+                                }
+
+
+                            } else {
+                                console.error('Error retrieving uploaded images. Please try again.');
+                            }
+                        }
+                    };
+
+                    // Retrieve the username directly from the HTML content
+                    var usernameElement = document.getElementById('username');
+                    var username = usernameElement.textContent.trim();
+
+                    var encodedUsername = encodeURIComponent(username);
+                    xhr.open('GET', '/display?username=' + encodedUsername, true);
+                    xhr.responseType = 'json';  // Ensure the response is treated as JSON
+                    xhr.send();
+                }
+
+                function base64ToArrayBuffer(base64) {
+                    var binaryString = window.atob(base64);
+                    var binaryLen = binaryString.length;
+                    var bytes = new Uint8Array(binaryLen);
+                    for (var i = 0; i < binaryLen; i++) {
+                        var ascii = binaryString.charCodeAt(i);
+                        bytes[i] = ascii;
+                    }
+                    return bytes.buffer;
+                }
+
+
+                window.onload = function () {
+                    // Call displayUploadedImages function on window load
+                    displayUploadedImages();
+                };
+
+            </script>
+        </div>
+
+        <script src="{{url_for('static', filename='script/script.js')}}"></script>
+    </div>
+    </div>
+    <hr style="width: 70%;"><br><br>
+    <div>
+        <div>
+            <h2>Uploaded images</h2>
+        </div>
+
+        <div id="uploaded-images"></div>
+    </div>
+
+
+    <br><br>
+    <hr style="width: 70%;"><br><br>
+    <div>
+        <div>
+            <h2>2.Select Images</h2>
+        </div>
+        <div>
+            <style>
+                .image-grid {
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+
+                    gap: 10px;
+
+                }
+
+                .image-grid img {
+                    width: 100%;
+
+                    height: auto;
+
+                    border-radius: 8px;
+
+                }
+            </style>
+            </style>
+
+            <div class="image-grid">
+                <label>
+                    <input type="checkbox" class="imageCheckbox" name="image" value="image1.jpeg">
+                    <img src="{{url_for('static', filename='images/image1.jpeg')}}" alt="Image 1">
+                </label>
+                <label>
+                    <input type="checkbox" class="imageCheckbox" name="image" value="image2.jpeg">
+                    <img src="{{url_for('static', filename='images/image2.jpeg')}}" alt="Image 2">
+                </label>
+                <label>
+                    <input type="checkbox" class="imageCheckbox" name="image" value="image3.jpeg">
+                    <img src="{{url_for('static', filename='images/image3.jpeg')}}" alt="Image 3">
+                </label>
+                <label>
+                    <input type="checkbox" class="imageCheckbox" name="image" value="image4.jpeg">
+                    <img src="{{url_for('static', filename='images/image4.jpeg')}}" alt="Image 4">
+                </label>
+                <label>
+                    <input type="checkbox" class="imageCheckbox" name="image" value="image5.jpeg">
+                    <img src="{{url_for('static', filename='images/image5.jpeg')}}" alt="Image 5">
+                </label>
+                <label>
+                    <input type="checkbox" class="imageCheckbox" name="image" value="image6.jpeg">
+                    <img src="{{url_for('static', filename='images/image6.jpeg')}}" alt="Image 6">
+                </label>
+            </div>
+
+            <button id="submitBtn">Submit Selection</button>
+
+            <script src="{{url_for('static', filename='script/script.js')}}"></script>
+        </div>
+
+    </div>
+    <br><br>
+    <hr style="width: 70%;"><br><br>
+    <div>
+        <h2 class="j">3.Create Video</h2>
+    </div>
+
+    <div>
+        <a href="{{url_for('video')}}">
+            <div class="k">
+                create
+            </div>
+            <br><br><br>
+        </a>
+    </div>
+
+</body>
+
+</html>

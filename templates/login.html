@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In Page</title>
+    <link
+      rel="stylesheet"
+      href="{{url_for('static', filename='styles/styleregister.css')}}"
+    />
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon-32x32.png') }}" type="images">
+    <!-- <script>
+        function loginsuccessfull(){
+          event.preventDefault(); // Prevent the default form submission behavior
+
+            // Get the entered username and password
+            var username = document.getElementById('username').value;
+            var password = document.getElementById('password').value;
+
+            // Check username and password
+             if (username === "admin" && password === "admin") {
+                document.getElementById('replace').innerHTML = "Admin Login Success";
+            } else {
+              document.getElementById('replace').innerHTML = "Login Successful";          
+            }   
+
+            setTimeout(function(){
+                window.location.href = "function.html";
+            }, 3000);
+        }
+      </script> -->
+  </head>
+  <body>
+    <p>Log In</p>
+    <div class="register">
+      <div class="form">
+        <form action="/login" method="POST">
+          <div class="flex-form">
+            <div>
+              <b style="color: rgb(13, 13, 13);">Username : <br></b>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter Your Username"
+                required
+              />
+            </div>
+            <div>
+              {% if error %}
+              <p style="color: black;font-size: medium;padding: 0%;">*{{error}}</p>
+              {% endif %}
+            </div>
+            <div>
+              <b>Password : <br></b>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder=" Enter Your Password"
+                required
+              />
+            </div>
+          </div>
+          <div class="buttons">
+            <div>
+              <button type="submit" >LogIn</button>
+            </div>
+            <div id="replace">
+
+            </div>
+            <!-- <div>
+              <button type="reset">Reset</button>
+            </div> -->
+          </div>
+        </form>
+      </div>
+    </div>
+  </body>
+</html>
