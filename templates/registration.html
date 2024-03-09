@@ -27,7 +27,7 @@
         <form action="/registration" method="POST">
           <div class="flex-form">
             <div>
-              <b style="color: rgb(13, 13, 13);">Username :</b>
+              <b style="color: whitesmoke;font-size: large;">Username :</b>
               <input
                 type="text"
                 id="username"
@@ -36,11 +36,11 @@
                 required
               />
               {% if error %}
-              <p style="color: rgb(0, 0, 0); font-size: medium; padding: 0%;">*{{ error }}</p>
+              <p style="color:  whitesmoke; font-size: large; padding: 0%;">*{{ error }}</p>
               {% endif %}
             </div>
             <div>
-              <b style="color: rgb(13, 13, 13);">Email-Id :</b>
+              <b style="color:  whitesmoke;font-size: large;">Email-Id :</b>
               <input
                 type="text"
                 id="email"
@@ -50,7 +50,7 @@
               />
             </div>
             <div>
-              <b style="color: rgb(13, 13, 13);">Name :</b>
+              <b style="color:  whitesmoke;font-size: large;">Name :</b>
               <input
                 type="text"
                 id="Name"
@@ -60,7 +60,7 @@
               />
             </div>
             <div>
-              <b>Password :</b>
+              <b style="color:  whitesmoke;font-size: large;">Password :</b>
               <input
                 type="password"
                 id="password"
@@ -76,11 +76,9 @@
               <button type="submit" ">Register</button>
             </div>
             
-            <!-- <div>
-              <button type="reset">Reset</button>
-            </div> -->
           </div>
-          <div id="register" style="color: aliceblue;">
+          <div>
+            <p style="color:whitesmoke;font-size: larger;">Already have an account?<a href="{{url_for('login')}}" style="text-decoration:none ;color:rgb(4, 250, 193);font-size: larger; "><b>Login</b></a></p>
           </div>
         </form>
       </div>

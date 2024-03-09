@@ -37,7 +37,7 @@
         <form action="/login" method="POST">
           <div class="flex-form">
             <div>
-              <b style="color: rgb(13, 13, 13);">Username : <br></b>
+              <b style="color:whitesmoke;font-size: large;">Username : <br></b>
               <input
                 type="text"
                 id="username"
@@ -45,14 +45,12 @@
                 placeholder="Enter Your Username"
                 required
               />
-            </div>
-            <div>
               {% if error %}
-              <p style="color: black;font-size: medium;padding: 0%;">*{{error}}</p>
+              <p style="color: black;font-size: large;padding: 0%;">*{{error}}</p>
               {% endif %}
             </div>
             <div>
-              <b>Password : <br></b>
+              <b style="color:whitesmoke;font-size: large;">Password : <br></b>
               <input
                 type="password"
                 id="password"
@@ -66,12 +64,9 @@
             <div>
               <button type="submit" >LogIn</button>
             </div>
-            <div id="replace">
-
-            </div>
-            <!-- <div>
-              <button type="reset">Reset</button>
-            </div> -->
+          </div>
+          <div>
+            <p style="color:whitesmoke;font-size: large;">Don't have an account?<a href="{{url_for('registration')}}" style="text-decoration:none ;color:rgb(4, 250, 193);font-size: large; "><b>Register</b></a></p>
           </div>
         </form>
       </div>
