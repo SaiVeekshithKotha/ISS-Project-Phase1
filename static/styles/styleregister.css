@@ -83,6 +83,7 @@ input:hover {
     flex-direction: row;
     justify-content: space-around;
     flex-wrap: wrap;
+    align-items: center;
 }
 
 .flex-form {
@@ -95,4 +96,12 @@ input:hover {
     flex: 3;
     /* flex-grow: 2; */
     padding: 5%;
+}
+
+@media screen and (max-width:500px){
+    
+   
+
+
+    
 }
