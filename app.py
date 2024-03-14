@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
-# from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 # import json
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
@@ -12,6 +12,8 @@ import os
 app = Flask(__name__)
 
 app.secret_key = 'your_secret_key_here'
+app.config['JWT_SECRET_KEY'] = 'jwt_secret_key_here'
+jwt = JWTManager(app)
 
 mysql_host = 'localhost'
 mysql_user = 'root'
@@ -68,7 +70,11 @@ def login():
             if user is not None:
                 retrieve_password = user['Password']
                 if check_password_hash(retrieve_password,password):
-                     return render_template('function.html',userName=username)
+                    access_token = create_access_token(identity=username)
+                    print(access_token)
+                    session['token'] = access_token
+                    session['username'] = username
+                    return render_template('function.html',userName=username)
                 else:
                     error = "Invalid username or password."
                     return render_template('login.html', error=error)
@@ -83,7 +89,10 @@ def upload():
     
     try:
         images = request.files.getlist('images')
-        username = request.form['username']
+        # username = request.form['username']
+        username = session.get('username')
+        if not username:
+            return jsonify({'error': 'User not logged in'}), 401
         print("username:",username)
         print("img:",images)
 
@@ -131,7 +140,10 @@ def allowed_file(Filename):
 
 @app.route('/display', methods=['GET'])
 def display():
-    username = request.args.get('username')
+    # username = request.args.get('username')
+    username = session.get('username')
+    if not username:
+        return jsonify({'error': 'User not logged in'}), 401
     print("Received username:", username)
 
     with connection.cursor() as cursor:
@@ -193,17 +205,11 @@ def serve_audio(id):
             return jsonify({'Error':f'{e} as occured.'}), 404
 
 
-@app.route('/show_images', methods=['GET'])
-def show_images():
-    selected_images = request.args.getlist('image')
-
-    return render_template('video.html', selected_images=selected_images)
-
 @app.route('/logout')
 def logout():
-    response = make_response(redirect(url_for('welcome')))
-    response.set_cookie('access_token_cookie', '', expires=0)  
-    return response
+     session.pop('token', None)
+     session.pop('username',None)
+     return redirect(url_for('welcome'))
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
