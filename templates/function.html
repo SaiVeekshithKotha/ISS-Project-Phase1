@@ -11,6 +11,51 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Habibi&display=swap" rel="stylesheet">
+
+    <style>
+        .uploaded-image-container {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .uploaded-image {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+            margin-right: 20px;
+        }
+
+        .selected-image {
+            width: 300px;
+            /* Match the width with the uploaded images */
+            height: auto;
+            margin-right: 10px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #ccc;
+            width: 300px;
+            height: 150px;
+            margin: 20px 0;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .drop-zone.dragover {
+            background-color: #f0f0f0;
+        }
+
+        #file-input {
+            display: none;
+        }
+
+        #selected-images {
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+    </style>
 </head>
 
 <body>
@@ -53,33 +98,6 @@
     <div>
         <div class="g">
 
-            <style>
-                .uploaded-image {
-                    width: 300px;
-                    height: auto;
-                    margin-bottom: 20px;
-                    margin-right: 20px;
-                }
-
-                .drop-zone {
-                    border: 2px dashed #ccc;
-                    width: 300px;
-                    height: 150px;
-                    margin: 20px 0;
-                    padding: 20px;
-                    box-sizing: border-box;
-                    text-align: center;
-                    cursor: pointer;
-                }
-
-                .drop-zone.dragover {
-                    background-color: #f0f0f0;
-                }
-
-                #file-input {
-                    display: none;
-                }
-            </style>
 
             <div id="drop-zone" class="drop-zone" style="margin:20px auto;" ondragover="handleDragOver(event)"
                 ondrop="handleDrop(event)" onclick="openFileSelector() " onchange="handleFiles(this.files)">
@@ -91,13 +109,7 @@
             <input type="file" id="browse-button" name="images" value="uploadFiles"
                 style="margin-left: 165px; margin-top: 25px;" multiple onchange="handleFiles(this.files)">
 
-            <!-- <div>
-                <form action="/upload" method="POST" style="text-align: center;" enctype="multipart/form-data">
-
-                    <input type="submit" value="Upload">
-                </form>
-
-            </div> -->
+            <div id="filename"></div>
 
             <script>
                 var username = "{{ userName }}";
@@ -122,6 +134,8 @@
 
 
                 function handleFiles(files) {
+                    var filename = files.length;
+                    document.getElementById("filename").innerText = filename;
                     uploadFiles(files, username);
                 }
 
@@ -145,6 +159,8 @@
                     };
                     xhr.send(form);
                 }
+
+
                 function displayUploadedImages() {
                     var uploadedImagesDiv = document.getElementById('uploaded-images');
                     uploadedImagesDiv.innerHTML = '';  // Clear previous content
@@ -163,11 +179,20 @@
                                         imgElement.src = URL.createObjectURL(imageBlob);
                                         imgElement.classList.add('uploaded-image');  // Apply any additional styling
 
-                                        uploadedImagesDiv.appendChild(imgElement);
+                                        var checkbox = document.createElement('input');
+                                        checkbox.type = 'checkbox';
+                                        checkbox.name = 'selected-images';
+                                        checkbox.value = imgElement.src;
+                                        checkbox.classList.add('image-checkbox');
+
+                                        var container = document.createElement('div');
+                                        container.classList.add('uploaded-image-container');
+                                        container.appendChild(checkbox);
+                                        container.appendChild(imgElement);
+
+                                        uploadedImagesDiv.appendChild(container);
                                     });
                                 }
-
-
                             } else {
                                 console.error('Error retrieving uploaded images. Please try again.');
                             }
@@ -183,6 +208,7 @@
                     xhr.responseType = 'json';  // Ensure the response is treated as JSON
                     xhr.send();
                 }
+
 
                 function base64ToArrayBuffer(base64) {
                     var binaryString = window.atob(base64);
@@ -213,84 +239,54 @@
             <h2>Uploaded images</h2>
         </div>
 
-        <div id="uploaded-images"></div>
+        <div class="uploading">
+            <div id="uploaded-images"></div>
+        </div>
     </div>
 
+    <button onclick="selectImages()">Select Images</button>
 
     <br><br>
+
     <hr style="width: 70%;"><br><br>
     <div>
         <div>
-            <h2>2.Select Images</h2>
+            <h2>Selected Images</h2>
         </div>
-        <div>
-            <style>
-                .image-grid {
-                    display: grid;
-                    grid-template-columns: repeat(3, 1fr);
-
-                    gap: 10px;
-
-                }
-
-                .image-grid img {
-                    width: 100%;
-
-                    height: auto;
-
-                    border-radius: 8px;
-
-                }
-            </style>
-            </style>
-
-            <div class="image-grid">
-                <label>
-                    <input type="checkbox" class="imageCheckbox" name="image" value="image1.jpeg">
-                    <img src="{{url_for('static', filename='images/image1.jpeg')}}" alt="Image 1">
-                </label>
-                <label>
-                    <input type="checkbox" class="imageCheckbox" name="image" value="image2.jpeg">
-                    <img src="{{url_for('static', filename='images/image2.jpeg')}}" alt="Image 2">
-                </label>
-                <label>
-                    <input type="checkbox" class="imageCheckbox" name="image" value="image3.jpeg">
-                    <img src="{{url_for('static', filename='images/image3.jpeg')}}" alt="Image 3">
-                </label>
-                <label>
-                    <input type="checkbox" class="imageCheckbox" name="image" value="image4.jpeg">
-                    <img src="{{url_for('static', filename='images/image4.jpeg')}}" alt="Image 4">
-                </label>
-                <label>
-                    <input type="checkbox" class="imageCheckbox" name="image" value="image5.jpeg">
-                    <img src="{{url_for('static', filename='images/image5.jpeg')}}" alt="Image 5">
-                </label>
-                <label>
-                    <input type="checkbox" class="imageCheckbox" name="image" value="image6.jpeg">
-                    <img src="{{url_for('static', filename='images/image6.jpeg')}}" alt="Image 6">
-                </label>
+        <style>
+            .select,
+            .uploading {
+                border: 1px black solid;
+                border-radius: 6px;
+                background-color: rgba(240, 248, 255, 0.373);
+                padding: 2%;
+            }
+        </style>
+        <div class="select">
+            <div id="selected-images" style="white-space: nowrap; overflow-x: auto;">
+                <!-- Adjust the white-space and overflow properties for horizontal display -->
             </div>
-
-            <button id="submitBtn">Submit Selection</button>
-
-            <script src="{{url_for('static', filename='script/script.js')}}"></script>
         </div>
-
     </div>
-    <br><br>
+    <script>
+        function selectImages() {
+            var selectedImages = document.querySelectorAll('.image-checkbox:checked');
+            var selectedImagesDiv = document.getElementById('selected-images');
+            selectedImagesDiv.innerHTML = '';
+
+            selectedImages.forEach(function (image) {
+                var imgElement = document.createElement('img');
+                imgElement.src = image.value;
+                imgElement.classList.add('selected-image');
+                selectedImagesDiv.appendChild(imgElement);
+            });
+        }
+    </script>
+
     <hr style="width: 70%;"><br><br>
-    <div>
-        <h2 class="j">3.Create Video</h2>
-    </div>
-
-    <div>
-        <a href="{{url_for('video')}}">
-            <div class="k">
-                create
-            </div>
-            <br><br><br>
-        </a>
-    </div>
+    <h2>
+        <a href="{{url_for('video')}}">Create Video</a>
+    </h2>
 
 </body>
 
