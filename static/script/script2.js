@@ -1,44 +1,67 @@
-let audioElement;
-let isPlaying = false;
+document.getElementById("submitBtn").addEventListener("click", function () {
+    var selectedAudios = [];
+    var checkboxes = document.querySelectorAll('.audioCheckbox:checked');
+    checkboxes.forEach(function (checkbox) {
+        selectedAudios.push(checkbox.value);
+    });
+    // Send selectedAudios to backend (e.g., using fetch)
+    console.log(selectedAudios); // Just for demonstration
+    var submissionMessage = "Number of audio files submitted: " + checkboxes.length;
+    alert(submissionMessage);
+});
 
-function openAudioFileInput() {
-    const audioInput = document.getElementById('audioInput');
-    audioInput.click();
-}
+async function fetchAudio() {
+    try {
+        // Fetch audio data from the server
+        const response = await fetch('/get_audio_from_database');
+        const data = await response.json();
 
-function handleAudioFile() {
-    const audioInput = document.getElementById('audioInput');
-    const selectedAudioName = document.getElementById('selectedAudioName');
-    const audioControls = document.getElementById('audioControls');
-    
-    if (audioInput.files.length > 0) {
-        const selectedAudio = audioInput.files[0];
-        console.log('Selected audio file:', selectedAudio);
+        // Extract audio IDs from the data
+        const audioIds = data.id;
 
-        selectedAudioName.textContent = `Selected Audio: ${selectedAudio.name}`;
+        // Load audio files asynchronously
+        const audioPromises = audioIds.map(async (Audio_id) => {
+            // Fetch audio file
+            const response = await fetch(`/audio/${Audio_id}`);
+            const blob = await response.blob();
+            return blob;
+        });
 
-        // Create an audio element
-        audioElement = new Audio();
-        audioElement.src = URL.createObjectURL(selectedAudio);
+        // Wait for all audio files to be loaded
+        const audioArray = await Promise.all(audioPromises);
 
-        // Show play/pause button
-        audioControls.style.display = 'flex';
+        // Display audio files
+        displayAudio(audioArray);
+    } catch (error) {
+        console.error('Error fetching audio:', error);
     }
 }
 
-function togglePlayPause() {
-    const playIcon = document.getElementById('playIcon');
-    const pauseIcon = document.getElementById('pauseIcon');
+function displayAudio(audioData) {
+    const audioContainer = document.querySelector('.audio-div');
+    let audioHTML = '';
 
-    if (audioElement.paused) {
-        audioElement.play();
-        isPlaying = true;
-        playIcon.style.display = 'none';
-        pauseIcon.style.display = 'inline';
-    } else {
-        audioElement.pause();
-        isPlaying = false;
-        playIcon.style.display = 'inline';
-        pauseIcon.style.display = 'none';
-    }
+    audioData.forEach((audioBlob, index) => {
+        // Create an object URL for the audio blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        // Display audio element
+        audioHTML += `
+<li>
+    <div class="audio" data-index="${index}">
+        <span class="index">Audio ${index + 1}</span>
+        <audio controls>
+            <source src="${audioUrl}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <input type="checkbox" class="audioCheckbox" name="audio" value="${index}">
+    </div>
+</li>
+`;
+    });
+
+    // Set HTML content to display audio elements
+    audioContainer.innerHTML = audioHTML;
 }
+
+fetchAudio();
