@@ -59,7 +59,7 @@
             <script src="{{url_for('static', filename='script/script.js')}}"></script>
 </head>
 
-<body>
+<body onload="displayUploadedImages()">
     <div class="topbar">
         <div class="a">
             Eiffel
@@ -133,24 +133,6 @@
             }
         </style>
     </div>
-
-    <!-- <button onclick="selectImages()">Select Images</button> -->
-
-    <!-- <br><br>
-
-    <hr style="width: 70%;"><br><br>
-    <div>
-        <div>
-            <h2>Selected Images</h2>
-        </div>
-        <div class="select">
-            <div id="selected-images" style="white-space: nowrap; overflow-x: auto;"> -->
-                <!-- Adjust the white-space and overflow properties for horizontal display -->
-            <!-- </div>
-        </div>
-    </div> -->
-
-
     <hr style="width: 70%;"><br><br>
     <h2>
         <a href="{{url_for('video')}}">Create Video</a>
