@@ -2,6 +2,7 @@
 var selectedImagesBlobs = [];
 
 function selectImages() {
+    selectedImagesBlobs = [];
     var selectedImages = document.querySelectorAll('.image-checkbox:checked');
     var selectedImagesDiv = document.getElementById('selected-images');
     selectedImagesDiv.innerHTML = '';
@@ -187,6 +188,7 @@ var selectedAudioFilesIds = [];
 
 document.addEventListener('DOMContentLoaded',function(){ // To wait untill the whole html page loaded, only then the function can execute
     document.getElementById("submitBtn").addEventListener("click", function () {
+        selectedAudioFilesIds = []
         var selectedAudios = [];
         var selectedAudioFiles = [] ;
         var checkboxes = document.querySelectorAll('.audioCheckbox:checked');
@@ -292,22 +294,49 @@ function updateToFlask(){
             contentType: false,  
             success: function(response) {
                 console.log('blob received successfully.');
+
+                var previewContainer = document.getElementById('preview-container');
+                var existingVideo = previewContainer.querySelector('video');
+                var downloadLink = document.getElementById('download-link');
+                var previewHeading = document.getElementById('preview-heading');
+
+                if (existingVideo) {
+                    previewContainer.removeChild(existingVideo);
+                }
+
+                if (downloadLink) {
+                    downloadLink.parentNode.removeChild(downloadLink);
+                }
+
+                if (previewHeading) {
+                    previewHeading.parentNode.removeChild(previewHeading);
+                }
+
+                var videoElement = document.createElement('video');
                 var blob = new Blob([base64ToArrayBuffer(response.video_base64)], { type: response.mime_type });
                 var videoUrl = URL.createObjectURL(blob);
-                var videoElement = document.createElement('video');
                 videoElement.src = videoUrl;
                 videoElement.width = 640;
                 videoElement.height = 480;
                 videoElement.controls = true;
-                var previewheading = document.createElement('H2');
-                previewheading.innerText='PREVIEW VIDEO'
-                var heading = document.getElementById('preview')
-                heading.appendChild(previewheading)
-                var previewContainer = document.getElementById('preview-container');
                 previewContainer.appendChild(videoElement);
-                var downloadLink = document.getElementById('download-link');
-                downloadLink.href = videoUrl;
-                downloadLink.innerText = "Download Video"; 
+
+                // var previewheading = document.createElement('H2');
+                // previewheading.innerText='PREVIEW VIDEO'
+                // var heading = document.getElementById('preview')
+                // heading.appendChild(previewheading)
+
+                var newPreviewHeading = document.createElement('h2');
+                newPreviewHeading.id = 'preview-heading';
+                newPreviewHeading.innerText = 'PREVIEW VIDEO';
+                previewContainer.prepend(newPreviewHeading);
+                
+                var newDownloadLink = document.createElement('a');
+                newDownloadLink.id = 'download-link';
+                newDownloadLink.href = videoUrl;
+                newDownloadLink.innerText = "Download Video";
+                var downloadLinkContainer = document.querySelector('.download-link');
+                downloadLinkContainer.appendChild(newDownloadLink); 
                 
             },
             error: function(xhr, status, error) {
