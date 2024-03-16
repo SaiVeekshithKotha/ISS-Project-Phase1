@@ -335,6 +335,7 @@ function updateToFlask(){
                 newDownloadLink.id = 'download-link';
                 newDownloadLink.href = videoUrl;
                 newDownloadLink.innerText = "Download Video";
+                newDownloadLink.download = "video.mp4";
                 var downloadLinkContainer = document.querySelector('.download-link');
                 downloadLinkContainer.appendChild(newDownloadLink); 
                 
