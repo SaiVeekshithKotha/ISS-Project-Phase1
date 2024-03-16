@@ -246,7 +246,7 @@ function displayAudio(audioData) {
 
         // Display audio element
         audioHTML += `
-<li>
+<li style="list-style:none">
     <div class="audio" data-index="${index}">
         <span class="index">Audio ${index + 1}</span>
         <audio controls>
@@ -288,14 +288,31 @@ function updateToFlask(){
             type: "POST",
             url: "/create_video",
             data: formData2,
-            processData: false,  // Prevent jQuery from processing the data
-            contentType: false,  // Prevent jQuery from setting the content type
+            processData: false,  
+            contentType: false,  
             success: function(response) {
-                console.log('Arrays sent successfully.');
-                console.log(response);
+                console.log('blob received successfully.');
+                var blob = new Blob([base64ToArrayBuffer(response.video_base64)], { type: response.mime_type });
+                var videoUrl = URL.createObjectURL(blob);
+                var videoElement = document.createElement('video');
+                videoElement.src = videoUrl;
+                videoElement.width = 640;
+                videoElement.height = 480;
+                videoElement.controls = true;
+                var previewheading = document.createElement('H2');
+                previewheading.innerText='PREVIEW VIDEO'
+                var heading = document.getElementById('preview')
+                heading.appendChild(previewheading)
+                var previewContainer = document.getElementById('preview-container');
+                previewContainer.appendChild(videoElement);
+                var downloadLink = document.getElementById('download-link');
+                downloadLink.href = videoUrl;
+                downloadLink.innerText = "Download Video"; 
+                
             },
-            error: function(error) {
-                console.error('Error sending arrays to the backend:', error);
+            error: function(xhr, status, error) {
+                console.error("Error:", error);
+                alert("error loading video ,please try again")
             }
         });
 
