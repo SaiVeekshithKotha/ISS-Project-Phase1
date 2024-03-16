@@ -75,3 +75,15 @@ body {
     color: white;
     border-radius: 25px;
 }
+
+.previewvideo{
+    text-align: center;
+}
+
+.download-link {
+    text-align: center;
+    color: black;
+    font-weight: bold;
+    font-size: large;
+    font-family: Quicksand;
+}
