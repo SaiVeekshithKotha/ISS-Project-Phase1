@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
+from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_from_directory,after_this_request,send_file
 import requests
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 # import json
@@ -272,7 +272,7 @@ def serve_audio(id):
 def create_video():
     selected_images_blobs = request.form.getlist('selectedImagesBlobs[]')
     selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
-    print(selected_images_blobs)
+    # print(selected_images_blobs)
     print(selected_audio_ids)
 
     audio_clips= []
@@ -339,16 +339,25 @@ def create_video():
     if audio_clip:
         video_clip = video_clip.set_audio(audio_clip)
 
-    # Define the output video filename
-    output_video_filename = 'output_video.mp4'
-
-    # Write the video clip to a file
-    video_clip.write_videofile(output_video_filename, fps=fps)
-
-    print("Video created successfully:", output_video_filename)
-    return jsonify({"message": "Video created successfully", "filename": output_video_filename})
+    with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
+        output_video_filename = temp_file.name
+        video_clip.write_videofile(output_video_filename, codec='libx264', fps=fps)
     
-
+    with open(output_video_filename, 'rb') as file:
+        video_blob = file.read()
+    
+    os.remove(output_video_filename)
+    
+    video_base64 = base64.b64encode(video_blob).decode('utf-8')
+    response_data = {
+        'video_base64': video_base64,
+        'mime_type': 'video/mp4'  # Adjust the MIME type as needed
+    }
+    return jsonify(response_data)
+    # Delete the temporary file
+    
+    
+    # return send_file(BytesIO(video_blob), mimetype='video/mp4', as_attachment=True,download_name='output_video.mp4')
 
 @app.route('/logout')
 def logout():
