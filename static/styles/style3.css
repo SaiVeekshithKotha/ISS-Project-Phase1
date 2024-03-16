@@ -87,3 +87,8 @@ body {
     font-size: large;
     font-family: Quicksand;
 }
+
+.download-link a{
+    text-decoration: none;
+}
+
