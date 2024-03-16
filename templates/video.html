@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{url_for('static', filename='styles/style3.css')}}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
         rel="stylesheet">
     <style>
@@ -79,7 +80,7 @@
             </div>
         </div>
     </div>
-    <hr style="width: 70%;"><br><br>
+    <hr style="width: 70%;"><br>
 
     <div>
         <h2 class="h"> Select Audio Files </h2>
@@ -99,28 +100,33 @@
     </div>
 
 
-
-    <br><br>
-    <hr style="width: 70%;"><br><br>
-
     <button type="submit" onclick="updateToFlask()">Create Video</button>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <div class="b">
-        <h2>Preview Video</h2>
-        <video width="640" height="360" controls>
-            <source src="{{url_for('static', filename='video/video.mp4')}}" type="video/mp4">
+    <br><br>
+    <br>
+    <hr style="width: 70%;"><br><br><br><br>
+
+    <div class="b" id="preview">
+        <!-- <h2>Preview Video</h2> -->
+        <!-- <video width="640" height="360" controls>
+            <source src="{{url_for('static', filename='video/video.mp4')}}" type="video/mp4"> -->
             <!-- <source src="your-video-file.webm" type="video/webm">
                 <source src="your-video-file.ogv" type="video/ogg"> -->
-            Your browser does not support the video tag.
-        </video>
-
+            <!-- Your browser does not support the video tag.
+        </video> -->
     </div>
-    <div>
-        <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ&pp=ygUIcmlja3JvbGw%3D" download
-            style="text-decoration: none;text-align: center;">
-            <h2>Download Video</h2>
+
+    <div class="previewvideo" id="preview-container">
+        <!-- Video will be dynamically inserted here -->
+    </div>
+
+    <div class = "download-link">
+        <a id="download-link" style="text-decoration: none;" download>
         </a>
     </div>
+
+    
+
 </body>
 
 </html>
