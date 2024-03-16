@@ -1,3 +1,6 @@
+
+var selectedImagesBlobs = [];
+
 function selectImages() {
     var selectedImages = document.querySelectorAll('.image-checkbox:checked');
     var selectedImagesDiv = document.getElementById('selected-images');
@@ -6,13 +9,17 @@ function selectImages() {
     selectedImages.forEach(function (image) {
         var imgElement = document.createElement('img');
         imgElement.src = image.value;
+        // selectedImagesUrls.push(imgElement.src);
+        selectedImagesBlobs.push(displayedImagesdata[imgElement.src]);
         imgElement.classList.add('selected-image');
         selectedImagesDiv.appendChild(imgElement);
     });
+    console.log(selectedImagesBlobs);
 }
 
-var username = "{{ userName }}";
-console.log(username) ;
+
+var username = "";
+// console.log(username) ;
 
 function handleDragOver(event) {
     event.preventDefault();
@@ -71,18 +78,13 @@ function displayUploadedImages() {
                 var images = xhr.response.images;
                 if (images) {
                     images.forEach(function (imageData) {
+                        var fileName = imageData.filename;
                         var imageFormat = imageData.format;
                         var imageBlob = new Blob([base64ToArrayBuffer(imageData.data)], { type: 'image/' + imageFormat });
-                        
+
                         var imgElement = document.createElement('img');
                         imgElement.src = URL.createObjectURL(imageBlob);
-                        imgElement.classList.add('uploaded-image');  // Apply any additional styling
-
-                        // var checkbox = document.createElement('input');
-                        // checkbox.type = 'checkbox';
-                        // checkbox.name = 'selected-images';
-                        // checkbox.value = imgElement.src;
-                        // checkbox.classList.add('image-checkbox');
+                        imgElement.classList.add('uploaded-image'); 
 
                         var container = document.createElement('div');
                         container.classList.add('uploaded-image-container');
@@ -100,14 +102,14 @@ function displayUploadedImages() {
 
     // Retrieve the username directly from the HTML content
     var usernameElement = document.getElementById('username');
-    var username = usernameElement.textContent.trim();
+    username = usernameElement.textContent.trim();
 
     var encodedUsername = encodeURIComponent(username);
     xhr.open('GET', '/display?username=' + encodedUsername, true);
     xhr.responseType = 'json';  // Ensure the response is treated as JSON
     xhr.send();
 }
-
+displayedImagesdata = {};
 function displayUploadedImages2() {
     var uploadedImagesDiv = document.getElementById('uploaded-images');
     uploadedImagesDiv.innerHTML = '';  // Clear previous content
@@ -119,13 +121,14 @@ function displayUploadedImages2() {
                 var images = xhr.response.images;
                 if (images) {
                     images.forEach(function (imageData) {
+                        var fileName = imageData.filename;
                         var imageFormat = imageData.format;
                         var imageBlob = new Blob([base64ToArrayBuffer(imageData.data)], { type: 'image/' + imageFormat });
 
                         var imgElement = document.createElement('img');
                         imgElement.src = URL.createObjectURL(imageBlob);
-                        imgElement.classList.add('uploaded-image');  // Apply any additional styling
-                        console.log('Ravi is revi.')
+                        displayedImagesdata[imgElement.src] = imageData.data;
+                        imgElement.classList.add('uploaded-image');
                         var checkbox = document.createElement('input');
                         checkbox.type = 'checkbox';
                         checkbox.name = 'selected-images';
@@ -167,10 +170,135 @@ function base64ToArrayBuffer(base64) {
     }
     return bytes.buffer;
 }
+///////////////////////////////////
+
+// window.onload = function () {
+//     // Call displayUploadedImages function on window load
+//     // displayUploadedImages();
+//     fetchAudio();
+// };
 
 
-window.onload = function () {
-    // Call displayUploadedImages function on window load
-    displayUploadedImages();
-};
 
+//////////// AUDIO ////////////////
+
+var selectedAudioFilesIds = [];
+
+
+document.addEventListener('DOMContentLoaded',function(){ // To wait untill the whole html page loaded, only then the function can execute
+    document.getElementById("submitBtn").addEventListener("click", function () {
+        var selectedAudios = [];
+        var selectedAudioFiles = [] ;
+        var checkboxes = document.querySelectorAll('.audioCheckbox:checked');
+        checkboxes.forEach(function (checkbox) {
+            selectedAudios.push(checkbox.value);
+            selectedAudioFilesIds.push(audioID[checkbox.value]);
+        });
+        
+    
+        
+        
+        console.log(selectedAudios); // Just for demonstration
+        console.log(selectedAudioFilesIds) ; // Just for checking the working of the selection
+        var submissionMessage = "Number of audio files submitted: " + checkboxes.length;
+        alert(submissionMessage);
+    });
+})
+
+var audioArray = [];
+var audioID = [];
+
+async function fetchAudio() {
+    try {
+        // Fetch audio data from the server
+        const response = await fetch('/get_audio_from_database');
+        const data = await response.json();
+
+        // Extract audio IDs from the data
+        const audioIds = data.id;
+
+        // Load audio files asynchronously
+        const audioPromises = audioIds.map(async (Audio_id) => {
+            // Fetch audio file
+            audioID.push(Audio_id);
+            const response = await fetch(`/audio/${Audio_id}`);
+            const blob = await response.blob();
+            return blob;
+        });
+
+        // Wait for all audio files to be loaded
+         audioArray = await Promise.all(audioPromises);
+
+        // Display audio files
+        displayAudio(audioArray);
+    } catch (error) {
+        console.error('Error fetching audio:', error);
+    }
+}
+
+function displayAudio(audioData) {
+    const audioContainer = document.querySelector('.audio-div');
+    let audioHTML = '';
+
+    audioData.forEach((audioBlob, index) => {
+        // Create an object URL for the audio blob
+        const audioUrl = URL.createObjectURL(audioBlob);
+
+        // Display audio element
+        audioHTML += `
+<li>
+    <div class="audio" data-index="${index}">
+        <span class="index">Audio ${index + 1}</span>
+        <audio controls>
+            <source src="${audioUrl}" type="audio/mpeg">
+            Your browser does not support the audio element.
+        </audio>
+        <input type="checkbox" class="audioCheckbox" name="audio" value="${index}">
+    </div>
+</li>
+`;
+    });
+
+    // Set HTML content to display audio elements
+    audioContainer.innerHTML = audioHTML;
+}
+
+/////////////////////////////////////////////////////////////
+
+function updateToFlask(){
+    if (selectedAudioFilesIds.length === 0){
+        alert("No Audio Selected.");
+        return;
+    }
+    else if (selectedImagesBlobs.length === 0){
+        alert("No Images selected");
+        return ;
+    }
+    else{
+        var formData2 = new FormData();
+        for (var i = 0; i < selectedImagesBlobs.length; i++) {
+            formData2.append('selectedImagesBlobs[]', selectedImagesBlobs[i]);
+        }
+    
+        // Append each element of selectedImages array
+        for (var j = 0; j < selectedAudioFilesIds.length; j++) {
+            formData2.append('selectedAudioFilesIds[]', selectedAudioFilesIds[j]);
+        }
+        $.ajax({
+            type: "POST",
+            url: "/create_video",
+            data: formData2,
+            processData: false,  // Prevent jQuery from processing the data
+            contentType: false,  // Prevent jQuery from setting the content type
+            success: function(response) {
+                console.log('Arrays sent successfully.');
+                console.log(response);
+            },
+            error: function(error) {
+                console.error('Error sending arrays to the backend:', error);
+            }
+        });
+
+    }
+    return ; 
+}
