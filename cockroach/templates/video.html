@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='images/favicon-32x32.png') }}" type="images">
+    <link rel="stylesheet" href="{{url_for('static', filename='styles/style3.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
+        rel="stylesheet">
+    <style>
+        .uploaded-image-container {
+            display: inline-block;
+            margin-right: 20px;
+        }
+
+        .uploaded-image {
+            width: 300px;
+            height: auto;
+            margin-bottom: 20px;
+            margin-right: 20px;
+        }
+
+        .selected-image {
+            width: 300px;
+            /* Match the width with the uploaded images */
+            height: auto;
+            margin-right: 10px;
+        }
+    </style>
+    <script src="{{url_for('static', filename='script/script.js')}}"></script>
+</head>
+
+<body onload="displayUploadedImages2();fetchAudio()">
+    <div class="a">
+        Video Page
+    </div>
+    <div>
+        <div>
+            <h2>Uploaded images</h2>
+        </div>
+
+        <div class="uploading">
+            <div id="uploaded-images"></div>
+        </div>
+    </div>
+
+    <button onclick="selectImages()">Select Images</button>
+
+    <br><br>
+
+    <hr style="width: 70%;"><br><br>
+    <div>
+
+        <div>
+            <h2>Selected Images</h2>
+        </div>
+        <style>
+            .select,
+            .uploading {
+                border: 1px black solid;
+                border-radius: 6px;
+                background-color: rgba(240, 248, 255, 0.373);
+                padding: 2%;
+            }
+        </style>
+        <div class="select">
+            <div id="selected-images" style="white-space: nowrap; overflow-x: auto;">
+                <!-- Adjust the white-space and overflow properties for horizontal display -->
+            </div>
+        </div>
+    </div>
+    <hr style="width: 70%;"><br><br>
+
+    <div>
+        <h2 class="h"> Select Audio Files </h2>
+    </div>
+
+    <style>
+        #audioList {
+            text-align: center;
+            margin: 10% 20%;
+        }
+    </style>
+    <div id="audioList">
+
+        <div class="audio-div"></div>
+
+        <button id="submitBtn">Submit Selection</button>
+    </div>
+    <style>
+        .option {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+    </style>
+
+    <div class="option">
+        <div>
+            <label for="resolution">Resolution :</label>
+            <select id="resolution" name="resolution">
+                <option value="480p">480p</option>
+                <option value="720p">720p</option>
+                <option value="1080p" selected>1080p (Default)</option>
+                <!-- Add more resolution options if needed -->
+            </select>
+        </div>
+        <div>
+            <label for="duration">Duration :</label>
+            <input type="number" placeholder="Duration of the video" id="duration">
+
+        </div>
+    </div>
+
+
+    <br><br>
+    <hr style="width: 70%;"><br><br>
+
+    <button type="submit" onclick="updateToFlask()">Create Video</button>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <div class="b" id="preview">
+       
+    </div>
+    <div class="previewvideo" id="preview-container">
+        <!-- Video will be dynamically inserted here -->
+    </div>
+
+    <div class = "download-link">
+        <a id="download-link" style="text-decoration: none;" download>
+        </a>
+    </div>
+</body>
+
+</html>
