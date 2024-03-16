@@ -1,5 +1,4 @@
 from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
-import requests
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 # import json
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,8 +8,6 @@ from io import BytesIO
 from PIL import Image
 import base64
 import os
-import numpy as np
-from moviepy.editor import ImageSequenceClip
 
 app = Flask(__name__)
 
@@ -19,8 +16,8 @@ app.config['JWT_SECRET_KEY'] = 'jwt_secret_key_here'
 jwt = JWTManager(app)
 
 mysql_host = 'localhost'
-mysql_user = 'root'
-mysql_password = 'Veekshith@06'
+mysql_user = 'Saicharan30'
+mysql_password = 'Saicharan@123'
 mysql_db = 'project_database'
 
 UPLOAD_FOLDER = 'uploads'
@@ -150,14 +147,14 @@ def display():
     print("Received username:", username)
 
     with connection.cursor() as cursor:
-        sql = "SELECT Image_name, Img, Filetype FROM Images WHERE username = %s"
+        sql = "SELECT Img, Filetype FROM Images WHERE username = %s"
         cursor.execute(sql, (username,))
         results = cursor.fetchall()
 
         if not results:
             return jsonify({'error': 'User not found in the database.'}), 404
 
-        images_data = [{'filename': result['Image_name'], 'format': result['Filetype'].split('/')[1].lower(), 'data': base64.b64encode(result.get('Img')).decode('utf-8')} for result in results]
+        images_data = [{'format': result['Filetype'].split('/')[1].lower(), 'data': base64.b64encode(result.get('Img')).decode('utf-8')} for result in results]
 
         if not images_data:
             return jsonify({'error': 'Image data not found in the database.'}), 404
@@ -165,14 +162,23 @@ def display():
         return jsonify({'images': images_data})
 
 
+
+
 @app.route('/function/<userName>', methods=['GET', 'POST'])
 def function(userName):
     return render_template('function.html',userName=userName)
 
+@app.route('/back_to_home',methods=['GET'])
+def  back_to_home():
+    username = session.get('username')
+    if not username:
+        return jsonify({'error': 'User not logged in'}), 401
+    else:
+        return render_template('function.html',userName=username)
+
 @app.route('/video', methods=['GET', 'POST'])
 def video():
-        userName = session.get('username')
-        return render_template('video.html',userName = userName)
+        return render_template('video.html')
 
 @app.route('/get_audio_from_database')
 def get_all_audio():
@@ -187,9 +193,6 @@ def get_all_audio():
             return jsonify({'id':id})
     except Exception as ex: 
         return jsonify({"Error": f'{ex} has occured.'})
-
-
-
 
 
 @app.route('/audio/<id>')
@@ -208,52 +211,6 @@ def serve_audio(id):
                 return jsonify({'Error': 'Audio file was not found.'}), 404
         except Exception as e:
             return jsonify({'Error':f'{e} as occured.'}), 404
-        
-
-
-@app.route('/create_video', methods=['GET' , 'POST'])
-def create_video():
-    selected_images_urls = request.form.getlist('selectedImagesURLs[]')
-    selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
-    print(selected_images_urls)
-    print(selected_audio_ids)
-    with connection.cursor() as cursor:
-        audio_blobs = []
-        for id in selected_audio_ids:
-            sql = '''SELECT AudioData FROM Audio WHERE Audio_id = %s '''
-            cursor.execute(sql,(id))
-            audio_data = cursor.fetchone()['AudioData']
-            audio_blobs.append(BytesIO())
-
-        
-        image_files = []
-        for url in selected_images_urls:
-            response = requests.get(url)
-            if response.status_code == 200:
-                # Open the image from the response content
-                img = Image.open(BytesIO(response.content))
-                # Append the image object to the list
-                image_files.append(img)
-            else:
-                print(f"Failed to retrieve image from {url}")
-        
-        image_arrays = [np.array(img) for img in image_files]
-
-        # Create a video clip from the sequence of images
-        clip = ImageSequenceClip(image_arrays, fps=30)
-
-        # Define the output video filename
-        output_video_filename = 'output_video.mp4'
-
-        # Write the video clip to a file
-        clip.write_videofile(output_video_filename, fps=30)
-
-        print("Video created successfully:", output_video_filename)
-                    
-
-
-    
-    return jsonify({'messsage':'HI'})
 
 
 @app.route('/logout')
