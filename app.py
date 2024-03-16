@@ -1,4 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
+import requests
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 # import json
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -8,6 +9,10 @@ from io import BytesIO
 from PIL import Image
 import base64
 import os
+import numpy as np
+from moviepy.editor import ImageSequenceClip, concatenate_audioclips, AudioFileClip
+# from urllib.request import urlopen
+import tempfile
 
 app = Flask(__name__)
 
@@ -147,21 +152,19 @@ def display():
     print("Received username:", username)
 
     with connection.cursor() as cursor:
-        sql = "SELECT Img, Filetype FROM Images WHERE username = %s"
+        sql = "SELECT Image_name, Img, Filetype FROM Images WHERE username = %s"
         cursor.execute(sql, (username,))
         results = cursor.fetchall()
 
         if not results:
             return jsonify({'error': 'User not found in the database.'}), 404
 
-        images_data = [{'format': result['Filetype'].split('/')[1].lower(), 'data': base64.b64encode(result.get('Img')).decode('utf-8')} for result in results]
+        images_data = [{'filename': result['Image_name'], 'format': result['Filetype'].split('/')[1].lower(), 'data': base64.b64encode(result.get('Img')).decode('utf-8')} for result in results]
 
         if not images_data:
             return jsonify({'error': 'Image data not found in the database.'}), 404
 
         return jsonify({'images': images_data})
-
-
 
 
 @app.route('/function/<userName>', methods=['GET', 'POST'])
@@ -176,9 +179,11 @@ def  back_to_home():
     else:
         return render_template('function.html',userName=username)
 
+
 @app.route('/video', methods=['GET', 'POST'])
 def video():
-        return render_template('video.html')
+        userName = session.get('username')
+        return render_template('video.html',userName = userName)
 
 @app.route('/get_audio_from_database')
 def get_all_audio():
@@ -193,6 +198,9 @@ def get_all_audio():
             return jsonify({'id':id})
     except Exception as ex: 
         return jsonify({"Error": f'{ex} has occured.'})
+
+
+
 
 
 @app.route('/audio/<id>')
@@ -211,6 +219,135 @@ def serve_audio(id):
                 return jsonify({'Error': 'Audio file was not found.'}), 404
         except Exception as e:
             return jsonify({'Error':f'{e} as occured.'}), 404
+        
+
+
+# @app.route('/create_video', methods=['GET' , 'POST'])
+# def create_video():
+#     selected_images_urls = request.form.getlist('selectedImagesURLs[]')
+#     selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
+#     print(selected_images_urls)
+#     print(selected_audio_ids)
+#     with connection.cursor() as cursor:
+#         audio_blobs = []
+#         for id in selected_audio_ids:
+#             sql = '''SELECT AudioData FROM Audio WHERE Audio_id = %s '''
+#             cursor.execute(sql,(id))
+#             audio_data = cursor.fetchone()['AudioData']
+#             audio_blobs.append(BytesIO())
+
+        
+#         image_files = []
+#         for url in selected_images_urls:
+#         #     response = requests.get(url,stream=True)
+#         #     if response.status_code == 200:
+#             with urlopen(url) as response:
+#                 image_data = response.read()
+#                 # Open the image from the response content
+#                 img = Image.open(BytesIO(image_data))
+#                 # Append the image object to the list
+#                 image_files.append(img)
+#             # else:
+#             #     print(f"Failed to retrieve image from {url}")
+        
+#         image_arrays = [np.array(img) for img in image_files]
+
+#         # Create a video clip from the sequence of images
+#         clip = ImageSequenceClip(image_arrays, fps=30)
+
+#         # Define the output video filename
+#         output_video_filename = 'output_video.mp4'
+
+#         # Write the video clip to a file
+#         clip.write_videofile(output_video_filename, fps=30)
+
+#         print("Video created successfully:", output_video_filename)
+                    
+
+
+    
+#     return jsonify({'messsage':'HI'})
+        
+@app.route('/create_video', methods=['GET' , 'POST'])
+def create_video():
+    selected_images_blobs = request.form.getlist('selectedImagesBlobs[]')
+    selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
+    print(selected_images_blobs)
+    print(selected_audio_ids)
+
+    audio_clips= []
+    with connection.cursor() as cursor:
+        audio_blobs = []
+        for id in selected_audio_ids:
+            sql = '''SELECT AudioData FROM Audio WHERE Audio_id = %s '''
+            cursor.execute(sql,(id))
+            audio_data = cursor.fetchone()['AudioData']
+            audio_blobs.append(BytesIO(audio_data))
+            # audio_clip = AudioFileClip(BytesIO(audio_data))
+            # audio_clips.append(audio_clip)
+            with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_audio_file:
+                temp_audio_file.write(audio_data)
+                temp_audio_file_name = temp_audio_file.name
+            
+            audio_clip = AudioFileClip(temp_audio_file_name)
+            audio_clips.append(audio_clip)
+        
+    image_files = []
+    for img_base64 in selected_images_blobs:
+        try:
+            img_data = base64.b64decode(img_base64)
+            img = Image.open(BytesIO(img_data))
+            image_files.append(img)
+        except Exception as e:
+            print(f"Error fetching image from : {e}")
+    
+    # image_arrays = [np.array(img) for img in image_files]
+    image_arrays_resized = []
+    for img in image_files:
+        print("q")
+        resized_img =img.resize((640, 480))
+        if resized_img.mode == 'RGBA':
+            resized_img = resized_img.convert('RGB')
+        image_arrays_resized.append(np.array(resized_img))
+        print(resized_img.size)
+    for x in image_arrays_resized:
+        print(x.shape)
+    
+    # sizes = set(img.size for img in image_arrays_resized)
+    # if len(sizes) > 1:
+    #     print("Error: Not all images have the same size")
+    # Create a video clip from the sequence of images
+    num_frames = len(image_arrays_resized)
+    fps = 30
+    duration_per_frame = 5
+    durations = [duration_per_frame] * num_frames    
+    video_clip = ImageSequenceClip(image_arrays_resized,durations=durations)
+    
+    if len(audio_clips) > 1:
+        audio_clip = concatenate_audioclips(audio_clips)
+    elif len(audio_clips) == 1:
+        audio_clip = audio_clips[0]
+    else:
+        audio_clip = None
+
+    # Set audio duration equal to video duration
+    if audio_clip:
+        audio_duration = video_clip.duration
+        audio_clip = audio_clip.set_duration(audio_duration)
+
+    # Add audio to video clip
+    if audio_clip:
+        video_clip = video_clip.set_audio(audio_clip)
+
+    # Define the output video filename
+    output_video_filename = 'output_video.mp4'
+
+    # Write the video clip to a file
+    video_clip.write_videofile(output_video_filename, fps=fps)
+
+    print("Video created successfully:", output_video_filename)
+    return jsonify({"message": "Video created successfully", "filename": output_video_filename})
+    
 
 
 @app.route('/logout')
