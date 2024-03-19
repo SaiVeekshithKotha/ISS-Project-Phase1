@@ -269,12 +269,16 @@ function displayAudio(audioData) {
 
 function updateToFlask(){
     if (selectedAudioFilesIds.length === 0){
-        alert("No Audio Selected.");
+        alert("Please select Audio");
         return;
     }
     else if (selectedImagesBlobs.length === 0){
-        alert("No Images selected");
+        alert("Please select Images");
         return ;
+    }
+    else if(!(document.getElementById('duration').value))
+    {
+        alert("please select duration of each frame");
     }
     else{
         var formData2 = new FormData();
@@ -286,6 +290,12 @@ function updateToFlask(){
         for (var j = 0; j < selectedAudioFilesIds.length; j++) {
             formData2.append('selectedAudioFilesIds[]', selectedAudioFilesIds[j]);
         }
+
+        var resolution = document.getElementById('resolution').value;
+        formData2.append('resolution', resolution);
+
+        var duration = document.getElementById('duration').value;
+        formData2.append('duration', duration);
         $.ajax({
             type: "POST",
             url: "/create_video",
