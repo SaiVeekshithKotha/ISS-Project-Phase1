@@ -99,6 +99,34 @@
         <button id="submitBtn">Submit Selection</button>
     </div>
 
+    <style>
+        .option {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+    </style>
+
+    <div class="option">
+        <div>
+            <label for="resolution">Resolution :</label>
+            <select id="resolution" name="resolution">
+                <option value="144p">144p</option>
+                <option value="360p">360p</option>
+                <option value="720p" selected>720p(Default)</option>
+                <option value="1080p">1080p </option>
+            </select>
+        </div>
+        <div>
+            <label for="duration">Duration :</label>
+            <input type="number" placeholder="Duration of each frame" id="duration" min="1" step="1" required>
+        </div>        
+    </div>
+
+
+    <br><br>
+    <hr style="width: 70%;"><br><br>
+
 
     <button type="submit" onclick="updateToFlask()">Create Video</button>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -107,15 +135,26 @@
     <hr style="width: 70%;"><br><br><br>
 
     <div class="b" id="preview">
+        <!-- <h2>Preview Video</h2> -->
+        <!-- <video width="640" height="360" controls>
+            <source src="{{url_for('static', filename='video/video.mp4')}}" type="video/mp4"> -->
+            <!-- <source src="your-video-file.webm" type="video/webm">
+                <source src="your-video-file.ogv" type="video/ogg"> -->
+            <!-- Your browser does not support the video tag.
+        </video> -->
         <div class="previewvideo" id="preview-container">
             <!-- Video will be dynamically inserted here -->
         </div>
     </div>
 
+    <br><br>
 
     <div class = "download-link">
-        
+        <!-- <a id="download-link" style="text-decoration: none;" download>
+        </a> -->
     </div>
+
+    
 
 </body>
 
