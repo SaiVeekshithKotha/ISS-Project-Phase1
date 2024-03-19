@@ -1,17 +1,14 @@
 from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_from_directory,after_this_request,send_file
 import requests
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
-# import json
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
-# from datetime import timedelta
 from io import BytesIO
 from PIL import Image
 import base64
 import os
 import numpy as np
 from moviepy.editor import ImageSequenceClip, concatenate_audioclips, AudioFileClip
-# from urllib.request import urlopen
 import tempfile
 
 app = Flask(__name__)
@@ -145,7 +142,6 @@ def allowed_file(Filename):
 
 @app.route('/display', methods=['GET'])
 def display():
-    # username = request.args.get('username')
     username = session.get('username')
     if not username:
         return jsonify({'error': 'User not logged in'}), 401
@@ -188,7 +184,6 @@ def video():
 @app.route('/get_audio_from_database')
 def get_all_audio():
     try:
-        # Connect to the database
         connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_password,db=mysql_db,cursorclass=pymysql.cursors.DictCursor)
         
         with connection.cursor() as cursor:
@@ -220,59 +215,13 @@ def serve_audio(id):
         except Exception as e:
             return jsonify({'Error':f'{e} as occured.'}), 404
         
-
-
-# @app.route('/create_video', methods=['GET' , 'POST'])
-# def create_video():
-#     selected_images_urls = request.form.getlist('selectedImagesURLs[]')
-#     selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
-#     print(selected_images_urls)
-#     print(selected_audio_ids)
-#     with connection.cursor() as cursor:
-#         audio_blobs = []
-#         for id in selected_audio_ids:
-#             sql = '''SELECT AudioData FROM Audio WHERE Audio_id = %s '''
-#             cursor.execute(sql,(id))
-#             audio_data = cursor.fetchone()['AudioData']
-#             audio_blobs.append(BytesIO())
-
-        
-#         image_files = []
-#         for url in selected_images_urls:
-#         #     response = requests.get(url,stream=True)
-#         #     if response.status_code == 200:
-#             with urlopen(url) as response:
-#                 image_data = response.read()
-#                 # Open the image from the response content
-#                 img = Image.open(BytesIO(image_data))
-#                 # Append the image object to the list
-#                 image_files.append(img)
-#             # else:
-#             #     print(f"Failed to retrieve image from {url}")
-        
-#         image_arrays = [np.array(img) for img in image_files]
-
-#         # Create a video clip from the sequence of images
-#         clip = ImageSequenceClip(image_arrays, fps=30)
-
-#         # Define the output video filename
-#         output_video_filename = 'output_video.mp4'
-
-#         # Write the video clip to a file
-#         clip.write_videofile(output_video_filename, fps=30)
-
-#         print("Video created successfully:", output_video_filename)
-                    
-
-
-    
-#     return jsonify({'messsage':'HI'})
-        
 @app.route('/create_video', methods=['GET' , 'POST'])
 def create_video():
     selected_images_blobs = request.form.getlist('selectedImagesBlobs[]')
     selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
-    # print(selected_images_blobs)
+    selected_resolution = request.form.get('resolution')
+    print(selected_resolution)
+    selected_time_duration = int(request.form.get('duration'))
     print(selected_audio_ids)
 
     audio_clips= []
@@ -283,8 +232,6 @@ def create_video():
             cursor.execute(sql,(id))
             audio_data = cursor.fetchone()['AudioData']
             audio_blobs.append(BytesIO(audio_data))
-            # audio_clip = AudioFileClip(BytesIO(audio_data))
-            # audio_clips.append(audio_clip)
             with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_audio_file:
                 temp_audio_file.write(audio_data)
                 temp_audio_file_name = temp_audio_file.name
@@ -301,25 +248,24 @@ def create_video():
         except Exception as e:
             print(f"Error fetching image from : {e}")
     
-    # image_arrays = [np.array(img) for img in image_files]
     image_arrays_resized = []
     for img in image_files:
-        print("q")
-        resized_img =img.resize((640, 480))
+        if selected_resolution == '144p':
+            resized_img = img.resize((256, 144))
+        elif selected_resolution == '360p':
+            resized_img = img.resize((480,360))
+        elif selected_resolution == '720p':
+            resized_img = img.resize((1280, 720))
+        elif selected_resolution == '1080p':
+            resized_img = img.resize((1920, 1080))
+
         if resized_img.mode == 'RGBA':
             resized_img = resized_img.convert('RGB')
         image_arrays_resized.append(np.array(resized_img))
-        print(resized_img.size)
-    for x in image_arrays_resized:
-        print(x.shape)
-    
-    # sizes = set(img.size for img in image_arrays_resized)
-    # if len(sizes) > 1:
-    #     print("Error: Not all images have the same size")
-    # Create a video clip from the sequence of images
+
     num_frames = len(image_arrays_resized)
     fps = 30
-    duration_per_frame = 5
+    duration_per_frame = selected_time_duration
     durations = [duration_per_frame] * num_frames    
     video_clip = ImageSequenceClip(image_arrays_resized,durations=durations)
     
@@ -330,12 +276,10 @@ def create_video():
     else:
         audio_clip = None
 
-    # Set audio duration equal to video duration
     if audio_clip:
         audio_duration = video_clip.duration
         audio_clip = audio_clip.set_duration(audio_duration)
 
-    # Add audio to video clip
     if audio_clip:
         video_clip = video_clip.set_audio(audio_clip)
 
@@ -347,18 +291,14 @@ def create_video():
         video_blob = file.read()
     
     os.remove(output_video_filename)
-    
+
     video_base64 = base64.b64encode(video_blob).decode('utf-8')
     response_data = {
         'video_base64': video_base64,
-        'mime_type': 'video/mp4'  # Adjust the MIME type as needed
+        'mime_type': 'video/mp4'  
     }
     return jsonify(response_data)
-    # Delete the temporary file
     
-    
-    # return send_file(BytesIO(video_blob), mimetype='video/mp4', as_attachment=True,download_name='output_video.mp4')
-
 @app.route('/logout')
 def logout():
      session.pop('token', None)
@@ -367,3 +307,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
+
