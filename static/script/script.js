@@ -276,10 +276,6 @@ function updateToFlask(){
         alert("Please select Images");
         return ;
     }
-    else if(!(document.getElementById('duration').value))
-    {
-        alert("please select duration of each frame");
-    }
     else{
         var formData2 = new FormData();
         for (var i = 0; i < selectedImagesBlobs.length; i++) {
@@ -294,8 +290,8 @@ function updateToFlask(){
         var resolution = document.getElementById('resolution').value;
         formData2.append('resolution', resolution);
 
-        var duration = document.getElementById('duration').value;
-        formData2.append('duration', duration);
+        var transition = document.getElementById('transition').value;
+        formData2.append('transition',transition);
         $.ajax({
             type: "POST",
             url: "/create_video",
