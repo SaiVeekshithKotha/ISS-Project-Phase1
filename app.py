@@ -1,6 +1,6 @@
-from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_from_directory,after_this_request,send_file
+from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
 import requests
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+from flask_jwt_extended import JWTManager, create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 import pymysql
 from io import BytesIO
@@ -8,7 +8,10 @@ from PIL import Image
 import base64
 import os
 import numpy as np
-from moviepy.editor import ImageSequenceClip, concatenate_audioclips, AudioFileClip
+from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
+from moviepy.video.fx.resize import resize
+
+# from moviepy.video.compositing.transitions import crossfade
 import tempfile
 
 app = Flask(__name__)
@@ -221,8 +224,9 @@ def create_video():
     selected_audio_ids = request.form.getlist('selectedAudioFilesIds[]')
     selected_resolution = request.form.get('resolution')
     print(selected_resolution)
-    selected_time_duration = int(request.form.get('duration'))
+    selected_transition = request.form.get('transition')
     print(selected_audio_ids)
+    print(selected_transition)
 
     audio_clips= []
     with connection.cursor() as cursor:
@@ -265,9 +269,9 @@ def create_video():
 
     num_frames = len(image_arrays_resized)
     fps = 30
-    duration_per_frame = selected_time_duration
+    duration_per_frame = 5
     durations = [duration_per_frame] * num_frames    
-    video_clip = ImageSequenceClip(image_arrays_resized,durations=durations)
+    video_clip=apply_transitions(image_arrays_resized,durations,selected_transition)
     
     if len(audio_clips) > 1:
         audio_clip = concatenate_audioclips(audio_clips)
@@ -298,7 +302,80 @@ def create_video():
         'mime_type': 'video/mp4'  
     }
     return jsonify(response_data)
+
+def apply_transitions (images,durations,transition_name):
+    clips_with_transitions = []
+    num_frames = len(images)
+
+    if transition_name == "fade":
+        for i in range(num_frames):
+            clip = ImageClip(images[i], duration=durations[i])
+            if i > 0:
+                clip = clip.fadein(2)
+                clips_with_transitions[-1] = clips_with_transitions[-1].fadeout(2)
+                
+            clips_with_transitions.append(clip) 
+        video_clip = concatenate_videoclips(clips_with_transitions)
+        print("hello")
+        return video_clip
+    elif transition_name == "none":
+        video_clip = ImageSequenceClip(images,durations=durations)
+        return video_clip
     
+    
+    # elif transition_name=="zoom_in_out":
+    #     clips_with_transitions.append(ImageClip(images[0]).set_duration(durations[0]))
+    #     for i in range(num_frames-1):
+    #         clip = zoom_in_out_transition(ImageClip(images[i]), ImageClip(images[i+1]), durations[i])
+    #         clips_with_transitions.append(clip)
+    #     clips_with_transitions.append(ImageClip(images[i+1]).set_duration(durations[i+1]))
+    #     return concatenate_videoclips(clips_with_transitions)
+        
+    #     for i in range(num_frames):
+    #         clip = ImageClip(image_arrays_resized[i], duration=durations[i])
+    #         clips_with_transitions.append(clip)
+
+    #     # Apply transitions between clips
+    #     for i in range(1, num_frames):
+    #         transition_duration = 2  # Adjust as needed
+    #         zoom_in_clip = clips_with_transitions[i].resize(lambda t: 1.1 + 0.1 * t / transition_duration)
+    #         zoom_out_clip = clips_with_transitions[i - 1].resize(lambda t: 1.1 + 0.1 * (transition_duration - t) / transition_duration)
+    #         transition_clip = concatenate_videoclips([zoom_out_clip.set_duration(transition_duration / 2),zoom_in_clip.set_duration(transition_duration / 2)])
+    #         clips_with_transitions[i - 1] = clips_with_transitions[i - 1].set_end(durations[i - 1] - transition_duration)
+    #         clips_with_transitions[i] = clips_with_transitions[i].set_start(durations[i - 1])
+    #         clips_with_transitions[i] = concatenate_videoclips([transition_clip, clips_with_transitions[i]])
+        
+    # # Concatenate the clips with transitions
+    #     video_clip = concatenate_videoclips(clips_with_transitions)
+    #     return video_clip
+    
+    # elif transition_name=="slide":
+    #     for i in range(num_frames):
+    #         clip = ImageClip(images[i], duration=durations[i])
+    #         clips_with_transitions.append(clip)
+        
+
+    #     # Apply slide effect between clips
+    #     slide_duration = 2.5  # Adjust as needed
+    #     for i in range(1, num_frames):
+    #         slide_in_clip = clips_with_transitions[i - 1].fx(resize, width=lambda t: int(clip.w * (1 - t / slide_duration)), height=clip.h)
+    #         slide_out_clip = clips_with_transitions[i].fx(resize, width=lambda t: int(clip.w * (t / slide_duration)), height=clip.h)
+    #         transition_clip = concatenate_videoclips([slide_out_clip.set_start(0), slide_in_clip.set_start(slide_duration)])
+    #         clips_with_transitions[i - 1] = transition_clip.set_end(durations[i - 1] - slide_duration)
+    #         clips_with_transitions[i] = clips_with_transitions[i].set_start(durations[i - 1])
+
+    #     # Concatenate the clips with transitions
+
+    #     video_clip = concatenate_videoclips(clips_with_transitions)
+    #     return video_clip
+
+# def zoom_in_out_transition(image1, image2, duration):
+#     zoom_in = (image2.resize((image1.size[0], image1.size[1])).set_position(('center', 'center')).set_duration(duration / 2))
+#     zoom_out = (image2.set_position(('center', 'center')).resize((image1.size[0], image1.size[1])).set_duration(duration / 2))
+#     return concatenate_videoclips([zoom_in, zoom_out])
+
+
+        
 @app.route('/logout')
 def logout():
      session.pop('token', None)
