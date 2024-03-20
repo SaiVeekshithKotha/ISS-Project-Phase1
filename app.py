@@ -362,6 +362,7 @@ def create_video():
     
     image_arrays_resized = []
     for img in image_files:
+        resized_img = []
         if selected_resolution == '144p':
             resized_img = img.resize((256, 144))
         elif selected_resolution == '360p':
