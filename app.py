@@ -1,18 +1,23 @@
 from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
 import requests
-from flask_jwt_extended import JWTManager, create_access_token
+from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
+# import json
 from werkzeug.security import generate_password_hash, check_password_hash
-import pymysql
+import psycopg2
 from io import BytesIO
 from PIL import Image
 import base64
 import os
 import numpy as np
+import cv2
 from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
 from moviepy.video.fx.resize import resize
+import tempfile 
 
-# from moviepy.video.compositing.transitions import crossfade
-import tempfile
+
+os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+os.environ[]
+
 
 app = Flask(__name__)
 
@@ -20,19 +25,50 @@ app.secret_key = 'your_secret_key_here'
 app.config['JWT_SECRET_KEY'] = 'jwt_secret_key_here'
 jwt = JWTManager(app)
 
-mysql_host = 'localhost'
-mysql_user = 'Saicharan30'
-mysql_password = 'Saicharan@123'
-mysql_db = 'project_database'
+try:
+    connection = psycopg2.connect(os.environ["DATABASE_URL"])
+except psycopg2.OperationalError as e:
+    print(f"Error connecting to the database: {e}")
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(app.config['UPLOAD_FOLDER'],exist_ok=True)
 
-connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_password,db=mysql_db,cursorclass=pymysql.cursors.DictCursor)
+@app.route('/admin',methods=['GET'])
+def admin(): 
+    username = session.get('username')
+    if not username : 
+        return redirect(url_for('login'))
+    if username != 'admin' : 
+        return render_template('function.html',userName=username)
+    if username == 'admin' :
+        try:
+            with connection.cursor() as cursor:
+                cursor.execute('use project_database')
+                query = '''SELECT * FROM users'''
+                cursor.execute(query)
+                userData = cursor.fetchall()
+                print(userData)
+                userdata = []
+                for user in userData:
+                    User = {
+                        'Username':user[0],
+                        'Email':user[1],
+                        'Name':user[2]
+                    }
+                    userdata.append(User)
+                print(userdata)
+            
+            return render_template('admin.html', username='admin', userData=userdata)
+        except Exception as e:
+            # If an error occurs, return an error message or log it
+            return jsonify({'error': str(e)})
 
 @app.route('/')
 def welcome():
+    username = session.get('username')
+    if username: 
+        return render_template('function.html',userName=username)
     return render_template('index.html')
 
 @app.route('/registration',methods=['GET','POST'])
@@ -68,12 +104,15 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
+        if username == 'admin' and password == 'admin':
+            return redirect(url_for('admin'))
         with connection.cursor() as cursor:
             sql = "SELECT * FROM Users WHERE Username = %s"
-            cursor.execute(sql, (username))
+            cursor.execute(sql, (username,))
             user = cursor.fetchone()
+
             if user is not None:
-                retrieve_password = user['Password']
+                retrieve_password = user[3]
                 if check_password_hash(retrieve_password,password):
                     access_token = create_access_token(identity=username)
                     print(access_token)
@@ -104,11 +143,11 @@ def upload():
 
         with connection.cursor() as cursor: 
             create_image_table = '''CREATE TABLE IF NOT EXISTS Images (
-            Image_Id INT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+            Image_Id SERIAL PRIMARY KEY,
             Username VARCHAR(255) NOT NULL,
             Image_name VARCHAR(255) NOT NULL,
             Filetype VARCHAR(100) NOT NULL,
-            Img LONGBLOB
+            Img BYTEA NOT NULL
             );'''
 
             cursor.execute(create_image_table)
@@ -120,6 +159,13 @@ def upload():
                     cursor.execute("SELECT * FROM Images WHERE Username = %s and Image_name = %s",(username,image.filename))
                     existing_image = cursor.fetchall()
                     if existing_image:
+                        # exist_img = {
+                        #     'Image_Id': existing_image[0],
+                        #     'Username': existing_image[1],
+                        #     'Image_name': existing_image[2],
+                        #     'Filetype': existing_image[3],
+                        #     'Img': existing_image[4]
+                        # }
                         return jsonify({'error':f'file {image.filename} already exists.'}),400
                     filepath = os.path.join(app.config['UPLOAD_FOLDER'],image.filename)
                     image.save(filepath)
@@ -145,12 +191,23 @@ def allowed_file(Filename):
 
 @app.route('/display', methods=['GET'])
 def display():
+    # username = request.args.get('username')
     username = session.get('username')
     if not username:
         return jsonify({'error': 'User not logged in'}), 401
     print("Received username:", username)
 
     with connection.cursor() as cursor:
+        create_image_table = '''CREATE TABLE IF NOT EXISTS Images (
+            Image_Id SERIAL PRIMARY KEY,
+            Username VARCHAR(255) NOT NULL,
+            Image_name VARCHAR(255) NOT NULL,
+            Filetype VARCHAR(100) NOT NULL,
+            Img BYTEA NOT NULL
+            );'''
+
+        cursor.execute(create_image_table)
+    
         sql = "SELECT Image_name, Img, Filetype FROM Images WHERE username = %s"
         cursor.execute(sql, (username,))
         results = cursor.fetchall()
@@ -158,7 +215,15 @@ def display():
         if not results:
             return jsonify({'error': 'User not found in the database.'}), 404
 
-        images_data = [{'filename': result['Image_name'], 'format': result['Filetype'].split('/')[1].lower(), 'data': base64.b64encode(result.get('Img')).decode('utf-8')} for result in results]
+        # images_data = [{'filename': result['Image_name'], 'format': result['Filetype'].split('/')[1].lower(), 'data': base64.b64encode(result.get('Img')).decode('utf-8')} for result in results]
+        images_data = [
+            {
+                'filename': result[0],  # Assuming Image_name is the first element of the tuple
+                'format': result[2].split('/')[1].lower(),  # Assuming Filetype is the second element of the tuple
+                'data': base64.b64encode(result[1]).decode('utf-8') if result[1] is not None else None  # Assuming Img is the third element of the tuple
+            }
+            for result in results
+        ]
 
         if not images_data:
             return jsonify({'error': 'Image data not found in the database.'}), 404
@@ -168,6 +233,9 @@ def display():
 
 @app.route('/function/<userName>', methods=['GET', 'POST'])
 def function(userName):
+    username = session.get('username')
+    if not username:
+        return redirect(url_for('login'))
     return render_template('function.html',userName=userName)
 
 @app.route('/back_to_home',methods=['GET'])
@@ -178,20 +246,23 @@ def  back_to_home():
     else:
         return render_template('function.html',userName=username)
 
-
 @app.route('/video', methods=['GET', 'POST'])
 def video():
-        userName = session.get('username')
-        return render_template('video.html',userName = userName)
+        username = session.get('username')
+        if not username:
+            # return jsonify({'error': 'User not logged in'}), 401
+            return redirect(url_for('login'))
+        return render_template('video.html',userName = username)
 
 @app.route('/get_audio_from_database')
 def get_all_audio():
     try:
-        connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_password,db=mysql_db,cursorclass=pymysql.cursors.DictCursor)
+        # Connect to the database
+        # connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_password,db=mysql_db,cursorclass=pymysql.cursors.DictCursor)
         
         with connection.cursor() as cursor:
             cursor.execute("SELECT Audio_id FROM Audio")
-            id = [f['Audio_id'] for f in cursor.fetchall()]
+            id = [f[0] for f in cursor.fetchall()]
 
             return jsonify({'id':id})
     except Exception as ex: 
@@ -204,20 +275,24 @@ def get_all_audio():
 @app.route('/audio/<id>')
 def serve_audio(id):
 
-    connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_password,db=mysql_db,cursorclass=pymysql.cursors.DictCursor)
+    # connection = pymysql.connect(host=mysql_host,user=mysql_user,password = mysql_password,db=mysql_db,cursorclass=pymysql.cursors.DictCursor)
 
     with connection.cursor() as cursor:
         try:
             query = "SELECT AudioData FROM Audio WHERE Audio_id = %s"
             cursor.execute(query, (id))
-            audio_data = cursor.fetchone()['AudioData']
+            audio_data = cursor.fetchone()[0]
+            print(1213)
             if audio_data:
+                print('audio_data')
                 return send_file(BytesIO(audio_data), mimetype='audio/mp3')
             else: 
                 return jsonify({'Error': 'Audio file was not found.'}), 404
         except Exception as e:
             return jsonify({'Error':f'{e} as occured.'}), 404
         
+
+
 @app.route('/create_video', methods=['GET' , 'POST'])
 def create_video():
     selected_images_blobs = request.form.getlist('selectedImagesBlobs[]')
@@ -234,7 +309,7 @@ def create_video():
         for id in selected_audio_ids:
             sql = '''SELECT AudioData FROM Audio WHERE Audio_id = %s '''
             cursor.execute(sql,(id))
-            audio_data = cursor.fetchone()['AudioData']
+            audio_data = cursor.fetchone()[0]
             audio_blobs.append(BytesIO(audio_data))
             with tempfile.NamedTemporaryFile(suffix='.mp3', delete=False) as temp_audio_file:
                 temp_audio_file.write(audio_data)
@@ -323,59 +398,13 @@ def apply_transitions (images,durations,transition_name):
         return video_clip
     
     
-    # elif transition_name=="zoom_in_out":
-    #     clips_with_transitions.append(ImageClip(images[0]).set_duration(durations[0]))
-    #     for i in range(num_frames-1):
-    #         clip = zoom_in_out_transition(ImageClip(images[i]), ImageClip(images[i+1]), durations[i])
-    #         clips_with_transitions.append(clip)
-    #     clips_with_transitions.append(ImageClip(images[i+1]).set_duration(durations[i+1]))
-    #     return concatenate_videoclips(clips_with_transitions)
-        
-    #     for i in range(num_frames):
-    #         clip = ImageClip(image_arrays_resized[i], duration=durations[i])
-    #         clips_with_transitions.append(clip)
-
-    #     # Apply transitions between clips
-    #     for i in range(1, num_frames):
-    #         transition_duration = 2  # Adjust as needed
-    #         zoom_in_clip = clips_with_transitions[i].resize(lambda t: 1.1 + 0.1 * t / transition_duration)
-    #         zoom_out_clip = clips_with_transitions[i - 1].resize(lambda t: 1.1 + 0.1 * (transition_duration - t) / transition_duration)
-    #         transition_clip = concatenate_videoclips([zoom_out_clip.set_duration(transition_duration / 2),zoom_in_clip.set_duration(transition_duration / 2)])
-    #         clips_with_transitions[i - 1] = clips_with_transitions[i - 1].set_end(durations[i - 1] - transition_duration)
-    #         clips_with_transitions[i] = clips_with_transitions[i].set_start(durations[i - 1])
-    #         clips_with_transitions[i] = concatenate_videoclips([transition_clip, clips_with_transitions[i]])
-        
-    # # Concatenate the clips with transitions
-    #     video_clip = concatenate_videoclips(clips_with_transitions)
-    #     return video_clip
+    # Delete the temporary file
     
-    # elif transition_name=="slide":
-    #     for i in range(num_frames):
-    #         clip = ImageClip(images[i], duration=durations[i])
-    #         clips_with_transitions.append(clip)
-        
-
-    #     # Apply slide effect between clips
-    #     slide_duration = 2.5  # Adjust as needed
-    #     for i in range(1, num_frames):
-    #         slide_in_clip = clips_with_transitions[i - 1].fx(resize, width=lambda t: int(clip.w * (1 - t / slide_duration)), height=clip.h)
-    #         slide_out_clip = clips_with_transitions[i].fx(resize, width=lambda t: int(clip.w * (t / slide_duration)), height=clip.h)
-    #         transition_clip = concatenate_videoclips([slide_out_clip.set_start(0), slide_in_clip.set_start(slide_duration)])
-    #         clips_with_transitions[i - 1] = transition_clip.set_end(durations[i - 1] - slide_duration)
-    #         clips_with_transitions[i] = clips_with_transitions[i].set_start(durations[i - 1])
-
-    #     # Concatenate the clips with transitions
-
-    #     video_clip = concatenate_videoclips(clips_with_transitions)
-    #     return video_clip
-
-# def zoom_in_out_transition(image1, image2, duration):
-#     zoom_in = (image2.resize((image1.size[0], image1.size[1])).set_position(('center', 'center')).set_duration(duration / 2))
-#     zoom_out = (image2.set_position(('center', 'center')).resize((image1.size[0], image1.size[1])).set_duration(duration / 2))
-#     return concatenate_videoclips([zoom_in, zoom_out])
+    
+    # return send_file(BytesIO(video_blob), mimetype='video/mp4', as_attachment=True,download_name='output_video.mp4')
 
 
-        
+
 @app.route('/logout')
 def logout():
      session.pop('token', None)
@@ -383,5 +412,5 @@ def logout():
      return redirect(url_for('welcome'))
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5010)
 
