@@ -1,5 +1,5 @@
 from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
-import requests
+# import requests
 from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
 # import json
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -9,13 +9,43 @@ from PIL import Image
 import base64
 import os
 import numpy as np
-import cv2
 from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
 from moviepy.video.fx.resize import resize
 import tempfile 
 
 
-os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+# os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+
+# Set DATABASE_URL from environment variable
+DATABASE_URL = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+
+# Decode the base64 certificate
+cert_decoded = base64.b64decode(os.environ['ROOT_CERT_BASE64'])
+
+# Define the path to save the certificate
+cert_path = '/opt/render/.postgresql/root.crt'
+os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+
+# Write the certificate to the file
+with open(cert_path, 'wb') as cert_file:
+    cert_file.write(cert_decoded)
+
+# Extract connection parameters from DATABASE_URL
+conn_params = {
+    'dbname': DATABASE_URL.split('/')[-1],
+    'user': DATABASE_URL.split('/')[2].split(':')[0],
+    'password': DATABASE_URL.split('/')[2].split(':')[1].split('@')[0],
+    'host': DATABASE_URL.split('@')[1].split(':')[0],
+    'port': DATABASE_URL.split('@')[1].split(':')[1].split('/')[0],
+    'sslmode': 'verify-full',
+    'sslrootcert': cert_path
+}
+
+# Set up the connection string
+conn_str = " ".join([f"{key}={value}" for key, value in conn_params.items()])
+print(conn_str)
+
+
 
 
 
@@ -26,7 +56,7 @@ app.config['JWT_SECRET_KEY'] = 'jwt_secret_key_here'
 jwt = JWTManager(app)
 
 try:
-    connection = psycopg2.connect(os.environ["DATABASE_URL"])
+    connection = psycopg2.connect(conn_str)
 except psycopg2.OperationalError as e:
     print(f"Error connecting to the database: {e}")
 
