@@ -1,4 +1,3 @@
-
 var selectedImagesBlobs = [];
 
 function selectImages() {
@@ -188,9 +187,8 @@ var selectedAudioFilesIds = [];
 
 document.addEventListener('DOMContentLoaded',function(){ // To wait untill the whole html page loaded, only then the function can execute
     document.getElementById("submitBtn").addEventListener("click", function () {
-        selectedAudioFilesIds = []
+        selectedAudioFilesIds = [];
         var selectedAudios = [];
-        var selectedAudioFiles = [] ;
         var checkboxes = document.querySelectorAll('.audioCheckbox:checked');
         checkboxes.forEach(function (checkbox) {
             selectedAudios.push(checkbox.value);
@@ -220,9 +218,11 @@ async function fetchAudio() {
         const audioIds = data.id;
 
         // Load audio files asynchronously
+        console.log('retrieved audio');
         const audioPromises = audioIds.map(async (Audio_id) => {
             // Fetch audio file
             audioID.push(Audio_id);
+            console.log(Audio_id);
             const response = await fetch(`/audio/${Audio_id}`);
             const blob = await response.blob();
             return blob;
@@ -248,7 +248,7 @@ function displayAudio(audioData) {
 
         // Display audio element
         audioHTML += `
-<li style="list-style:none">
+<li>
     <div class="audio" data-index="${index}">
         <span class="index">Audio ${index + 1}</span>
         <audio controls>
@@ -269,29 +269,30 @@ function displayAudio(audioData) {
 
 function updateToFlask(){
     if (selectedAudioFilesIds.length === 0){
-        alert("Please select Audio");
+        alert("No Audio Selected.");
         return;
     }
     else if (selectedImagesBlobs.length === 0){
-        alert("Please select Images");
+        alert("No Images selected");
         return ;
     }
     else{
         var formData2 = new FormData();
+        
         for (var i = 0; i < selectedImagesBlobs.length; i++) {
             formData2.append('selectedImagesBlobs[]', selectedImagesBlobs[i]);
         }
-    
-        // Append each element of selectedImages array
+        
         for (var j = 0; j < selectedAudioFilesIds.length; j++) {
             formData2.append('selectedAudioFilesIds[]', selectedAudioFilesIds[j]);
         }
-
         var resolution = document.getElementById('resolution').value;
         formData2.append('resolution', resolution);
 
         var transition = document.getElementById('transition').value;
-        formData2.append('transition',transition);
+        formData2.append('transition', transition);
+        
+        alert("Don't refresh the page. Please wait for few moments...");
         $.ajax({
             type: "POST",
             url: "/create_video",
@@ -341,7 +342,7 @@ function updateToFlask(){
                 newDownloadLink.id = 'download-link';
                 newDownloadLink.href = videoUrl;
                 newDownloadLink.innerText = "Download Video";
-                newDownloadLink.download = "video.mp4";
+                newDownloadLink.download = "video.mp4"
                 var downloadLinkContainer = document.querySelector('.download-link');
                 downloadLinkContainer.appendChild(newDownloadLink); 
                 
