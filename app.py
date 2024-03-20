@@ -377,7 +377,7 @@ def create_video():
 
     num_frames = len(image_arrays_resized)
     fps = 30
-    duration_per_frame = 5
+    duration_per_frame = 2
     durations = [duration_per_frame] * num_frames    
     video_clip=apply_transitions(image_arrays_resized,durations,selected_transition)
     
@@ -419,8 +419,8 @@ def apply_transitions (images,durations,transition_name):
         for i in range(num_frames):
             clip = ImageClip(images[i], duration=durations[i])
             if i > 0:
-                clip = clip.fadein(2)
-                clips_with_transitions[-1] = clips_with_transitions[-1].fadeout(2)
+                clip = clip.fadein(0.5)
+                clips_with_transitions[-1] = clips_with_transitions[-1].fadeout(0.5)
                 
             clips_with_transitions.append(clip) 
         video_clip = concatenate_videoclips(clips_with_transitions)
