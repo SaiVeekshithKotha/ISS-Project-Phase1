@@ -1,7 +1,5 @@
-from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
-import requests
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
-# import json
+from flask import Flask, render_template, redirect, url_for, request, session, jsonify,send_file
+from flask_jwt_extended import JWTManager, create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from io import BytesIO
@@ -10,13 +8,8 @@ import base64
 import os
 import numpy as np
 from urllib.parse import urlparse 
-from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
-from moviepy.video.fx.resize import resize
+from moviepy.editor import ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip
 import tempfile 
-
-
-# os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
-
 
 
 url = urlparse(os.environ["DATABASE_URL"])
