@@ -1,21 +1,29 @@
-from flask import Flask, render_template, redirect, url_for, request, abort, session, make_response,jsonify,send_file
-import requests
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity, decode_token
-# import json
+from flask import Flask, render_template, redirect, url_for, request ,session, jsonify,send_file
+from flask_jwt_extended import JWTManager, create_access_token
 from werkzeug.security import generate_password_hash, check_password_hash
 import psycopg2
 from io import BytesIO
 from PIL import Image
 import base64
 import os
-import numpy as np
-import cv2
-from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
-from moviepy.video.fx.resize import resize
+import numpy as np 
+from urllib.parse import urlparse          
+from moviepy.editor import ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip
 import tempfile 
 
 
-os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+url = urlparse(os.environ["DATABASE_URL"])
+
+# Decode the base64 certificate
+cert_decoded = base64.b64decode(os.environ['ROOT_CERT_BASE64'])
+
+# Define the path to save the certificate
+cert_path = '/opt/render/.postgresql/root.crt'
+os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+
+# Write the certificate to the file
+with open(cert_path, 'wb') as cert_file:
+    cert_file.write(cert_decoded)
 
 
 app = Flask(__name__)
@@ -25,7 +33,15 @@ app.config['JWT_SECRET_KEY'] = 'jwt_secret_key_here'
 jwt = JWTManager(app)
 
 try:
-    connection = psycopg2.connect(os.environ["DATABASE_URL"])
+    connection = psycopg2.connect(
+        host=url.hostname,
+        port=url.port,
+        dbname=url.path[1:],
+        user=url.username,
+        password=url.password,
+        sslmode='verify-full',
+        sslrootcert=cert_path
+    )
 except psycopg2.OperationalError as e:
     print(f"Error connecting to the database: {e}")
 
@@ -343,7 +359,7 @@ def create_video():
 
     num_frames = len(image_arrays_resized)
     fps = 30
-    duration_per_frame = 2.5
+    duration_per_frame = 2.75
     durations = [duration_per_frame] * num_frames    
     video_clip=apply_transitions(image_arrays_resized,durations,selected_transition)
     
@@ -373,8 +389,7 @@ def create_video():
         else: 
             audio_clip = audio_clip.set_duration(audio_duration)
             video_clip = video_clip.set_audio(audio_clip)
-        print('video_clip')
-
+        
     output_video_filename = 'output_video.mp4'
     video_clip.write_videofile(output_video_filename, codec='libx264', fps=fps)
 
@@ -427,3 +442,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5010)
+
