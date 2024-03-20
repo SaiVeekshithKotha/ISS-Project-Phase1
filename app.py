@@ -388,15 +388,17 @@ def create_video():
 
     if audio_clip:
         video_clip = video_clip.set_audio(audio_clip)
+        
+    output_video_filename = 'output_video.mp4'
+    video_clip.write_videofile(output_video_filename, codec='libx264', fps=fps)
 
-    with tempfile.NamedTemporaryFile(suffix='.mp4', delete=False) as temp_file:
-        output_video_filename = temp_file.name
-        video_clip.write_videofile(output_video_filename, codec='libx264', fps=fps)
-    
+    # Read the video file and extract blob
     with open(output_video_filename, 'rb') as file:
         video_blob = file.read()
-    
+
+    # Delete the video file
     os.remove(output_video_filename)
+
 
     video_base64 = base64.b64encode(video_blob).decode('utf-8')
     response_data = {
