@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -11,8 +10,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
         rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Habibi&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Habibi&display=swap" rel="stylesheet">        
     <style>
         .uploaded-image-container {
             display: inline-block;
@@ -34,18 +32,20 @@
         }
 
         .drop-zone {
-            border: 2px dashed #ccc;
-            width: 300px;
-            height: 150px;
+            border: 2px dashed #484848;
+            width: 70%;
+            height: 300px;
             margin: 20px 0;
             padding: 20px;
             box-sizing: border-box;
             text-align: center;
+            font-size: x-large;
+            background-color: #fa909958;
             cursor: pointer;
         }
 
         .drop-zone.dragover {
-            background-color: #f0f0f0;
+            background-color: rgba(255, 255, 255, 0.745);
         }
 
         #file-input {
@@ -57,7 +57,7 @@
             overflow-x: auto;
         }
     </style>
-            <script src="{{url_for('static', filename='script/script.js')}}"></script>
+    <script src="{{url_for('static', filename='script/script.js')}}"></script>
 </head>
 
 <body onload="displayUploadedImages()">
@@ -135,9 +135,90 @@
         </style>
     </div>
     <hr style="width: 70%;"><br><br>
-    <h2>
-        <a href="{{url_for('video')}}">Create Video</a>
+    <h2 style="text-align: center;">
+        <button><a style="text-decoration: none;" href="{{url_for('video')}}">Create Video</a></button>
+
     </h2>
+    <style>
+        a {
+            color: #f0f0f0;
+        }
+        button {
+            position: relative;
+            padding: 10px 20px;
+            border-radius: 7px;
+            border: 1px solid #FB5012;
+            font-size: 14px;
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 2px;
+            background: transparent;
+            color: #fff;
+            overflow: hidden;
+            background-color: #7EA784;
+            box-shadow: 0 0 0 0 transparent;
+            -webkit-transition: all 0.2s ease-in;
+            -moz-transition: all 0.2s ease-in;
+            transition: all 0.2s ease-in;
+        }
+
+        button:hover {
+            background: #FB5012;
+            box-shadow: 0 0 30px 5px rgba(236, 0, 90, 0.815);
+            -webkit-transition: all 0.2s ease-out;
+            -moz-transition: all 0.2s ease-out;
+            transition: all 0.2s ease-out;
+            color: #fff;
+        }
+
+        button:hover::before {
+            -webkit-animation: sh02 0.5s 0s linear;
+            -moz-animation: sh02 0.5s 0s linear;
+            animation: sh02 0.5s 0s linear;
+            color: #fff;
+        }
+
+        button::before {
+            content: '';
+            display: block;
+            width: 0px;
+            height: 86%;
+            position: absolute;
+            top: 7%;
+            left: 0%;
+            opacity: 0;
+            background: #fff;
+            box-shadow: 0 0 50px 30px #fff;
+            -webkit-transform: skewX(-20deg);
+            -moz-transform: skewX(-20deg);
+            -ms-transform: skewX(-20deg);
+            -o-transform: skewX(-20deg);
+            transform: skewX(-20deg);
+        }
+
+        @keyframes sh02 {
+            from {
+                opacity: 0;
+                left: 0%;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            to {
+                opacity: 0;
+                left: 100%;
+            }
+        }
+
+        button:active {
+            box-shadow: 0 0 0 0 transparent;
+            -webkit-transition: box-shadow 0.2s ease-in;
+            -moz-transition: box-shadow 0.2s ease-in;
+            transition: box-shadow 0.2s ease-in;
+        }
+    </style>
 
 </body>
 

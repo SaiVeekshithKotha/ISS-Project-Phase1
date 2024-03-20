@@ -8,14 +8,47 @@
     <link rel="stylesheet" href="{{url_for('static', filename='styles/style3.css')}}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Source+Code+Pro&display=swap"
         rel="stylesheet">
+        <style>
+            button {
+ border: none;
+ color: #fff;
+ background-image: linear-gradient(30deg, #0400ff, #4ce3f7);
+ border-radius: 20px;
+ background-size: 100% auto;
+ font-family: inherit;
+ font-size: 17px;
+ padding: 0.6em 1.5em;
+}
+
+button:hover {
+ background-position: right center;
+ background-size: 200% auto;
+ -webkit-animation: pulse 2s infinite;
+ animation: pulse512 1.5s infinite;
+}
+
+@keyframes pulse512 {
+ 0% {
+  box-shadow: 0 0 0 0 #05bada66;
+ }
+
+ 70% {
+  box-shadow: 0 0 0 10px rgb(218 103 68 / 0%);
+ }
+
+ 100% {
+  box-shadow: 0 0 0 0 rgb(218 103 68 / 0%);
+ }
+}
+        </style>
     <style>
         .uploaded-image-container {
             display: inline-block;
             margin-right: 20px;
         }
+
         .uploaded-image {
             width: 300px;
             height: auto;
@@ -33,17 +66,9 @@
     <script src="{{url_for('static', filename='script/script.js')}}"></script>
 </head>
 
-<body onload="displayUploadedImages2();fetchAudio()">
-    <div class="topbar">
-        <div class="a">
-            Video Page
-        </div>
-        <div>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-        </div>
-        <div class="function">
-            <a href="{{url_for('back_to_home')}}" style="text-decoration: none;color: white;">Back to home</a>
-        </div>
+<body onload="displayUploadedImages2();fetchAudio()" class = 'container'>
+    <div class="a">
+        Video Page
     </div>
     <div>
         <div>
@@ -61,7 +86,7 @@
 
     <hr style="width: 70%;"><br><br>
     <div>
-        
+
         <div>
             <h2>Selected Images</h2>
         </div>
@@ -80,7 +105,7 @@
             </div>
         </div>
     </div>
-    <hr style="width: 70%;"><br>
+    <hr style="width: 70%;"><br><br>
 
     <div>
         <h2 class="h"> Select Audio Files </h2>
@@ -93,12 +118,11 @@
         }
     </style>
     <div id="audioList">
-       
+
         <div class="audio-div"></div>
 
         <button id="submitBtn">Submit Selection</button>
     </div>
-
     <style>
         .option {
             display: flex;
@@ -111,55 +135,41 @@
         <div>
             <label for="resolution">Resolution :</label>
             <select id="resolution" name="resolution">
-                <option value="144p">144p</option>
-                <option value="360p">360p</option>
-                <option value="720p" selected>720p(Default)</option>
-                <option value="1080p">1080p </option>
+                <option value="480p">480p</option>
+                <option value="720p">720p</option>
+                <option value="1080p" selected>1080p (Default)</option>
             </select>
         </div>
-       <div>
+        <div>
             <label for="transition">Transition :</label>
             <select name="transition" id="transition">
                 <option value="fade">Fading</option>
                 <option value="none" selected>None (Default)</option>
             </select>
 
-        </div>        
+        </div>
     </div>
 
 
     <br><br>
     <hr style="width: 70%;"><br><br>
 
-
-    <button type="submit" onclick="updateToFlask()">Create Video</button>
+    <div style="text-align: center;">
+        <button type="submit" onclick="updateToFlask()">Create Video</button>
+    </div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <br><br>
-    <br>
-    <hr style="width: 70%;"><br><br><br>
-
-    <div class="b" id="preview">
-        <!-- <h2>Preview Video</h2> -->
-        <!-- <video width="640" height="360" controls>
-            <source src="{{url_for('static', filename='video/video.mp4')}}" type="video/mp4"> -->
-            <!-- <source src="your-video-file.webm" type="video/webm">
-                <source src="your-video-file.ogv" type="video/ogg"> -->
-            <!-- Your browser does not support the video tag.
-        </video> -->
-        <div class="previewvideo" id="preview-container">
-            <!-- Video will be dynamically inserted here -->
-        </div>
-    </div>
-
-    <br><br>
-
-    <div class = "download-link">
-        <!-- <a id="download-link" style="text-decoration: none;" download>
-        </a> -->
-    </div>
-
     
+    <div class="b" id="preview" style="text-align: center;">
+       
+    </div>
+    <div class="previewvideo" id="preview-container" style="text-align: center;">
+        <!-- Video will be dynamically inserted here -->
+    </div>
 
+    <div class = "download-link" style="text-align: center;">
+        <a id="download-link" style="text-decoration: none;" download>
+        </a>
+    </div>
 </body>
 
 </html>

@@ -18,8 +18,7 @@
         <div class="nav">
           <div class="logo">
             <div class="logo1">
-              <div><img src="{{url_for('static', filename='images/logo.svg')}}" 
-                  style="border-radius: 16px;"></div>
+              <div><img src="{{url_for('static', filename='images/logo.svg')}}" style="border-radius: 16px;"></div>
 
             </div>
 
@@ -33,7 +32,7 @@
       </div>
     </nav>
   </div>
-  
+
   <br><br><br><br>
 
   <div class="backgrnd">
@@ -49,8 +48,25 @@
 
       <div class="gettingstarted">
         <div class="getstarted">
-          <a href="{{url_for('registration')}}" style="text-decoration: none;"><b style="color:white;">Get
-              Started</b></a>
+          <!-- <a href="{{url_for('registration')}}" style="text-decoration: none;"><b style="color:white;">Get
+              Started</b></a> -->
+          <a href="{{url_for('registration')}}" style="text-decoration: none;">
+            <button class="btn-53">
+              <div class="original">Get Started</b>
+              </div>
+              <div class="letters">
+
+                <span>W</span>
+                <span>E</span>
+                <span>L</span>
+                <span>C</span>
+                <span>O</span>
+                <span>M</span>
+                <span>E</span>
+              </div>
+            </button>
+          </a>
+
         </div>
       </div>
 
@@ -58,7 +74,7 @@
 
     <div class="image">
       <img
-        src="https://videohive.img.customer.envatousercontent.com/files/410281067/Cover.jpg?auto=compress%2Cformat&fit=crop&crop=top&max-h=8000&max-w=590&s=ca675476a07caf042019801d511c3d7f"  >
+        src="https://videohive.img.customer.envatousercontent.com/files/410281067/Cover.jpg?auto=compress%2Cformat&fit=crop&crop=top&max-h=8000&max-w=590&s=ca675476a07caf042019801d511c3d7f">
     </div>
 
   </div>
@@ -66,12 +82,56 @@
   <br><br>
 
   <div class="contact">
-    <p style="text-align: center;font-size: 25px;"><b style="color: black;">In case of any queries please reach out to us</b></p>
+    <p style="text-align: center;font-size: 25px;"><b style="color: black;">In case of any queries please reach out to
+        us</b></p>
   </div>
 
-  <div id="socials" class="socials">
-    <a href="mailto:saicharanbakaram30@gmail.com" target="_blank"><img src="static/images/new.png" style="width:50px"></a>
+  <div class="socials">
+    <button class="button">Contact Us</button>
   </div>
+
+  <style>
+    .button {
+      padding: 1em 2em;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      color: #ff6f69;
+      transition: all 1000ms;
+      font-size: 15px;
+      position: relative;
+      overflow: hidden;
+      outline: 2px solid #ff6f69;
+      background-color: rgb(43, 42, 42);
+    }
+
+    .button:hover {
+      color: #ffffff;
+      transform: scale(1.1);
+      outline: 2px solid #ff6f69;
+      box-shadow: 4px 5px 17px -4px #268391;
+    }
+
+    .button::before {
+      content: "";
+      position: absolute;
+      left: -50px;
+      top: 0;
+      width: 0;
+      height: 100%;
+      background-color: #ff6f69;
+      transform: skewX(45deg);
+      z-index: -1;
+      transition: width 1000ms;
+    }
+
+    .button:hover::before {
+      width: 250%;
+    }
+  </style>
 
 </body>
 
