@@ -9,7 +9,6 @@ from PIL import Image
 import base64
 import os
 import numpy as np
-import cv2
 from urllib.parse import urlparse 
 from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
 from moviepy.video.fx.resize import resize
