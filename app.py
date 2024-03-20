@@ -10,12 +10,39 @@ import base64
 import os
 import numpy as np
 import cv2
+from urllib.parse import urlparse 
 from moviepy.editor import CompositeVideoClip,ImageClip,ImageSequenceClip,concatenate_videoclips, concatenate_audioclips, AudioFileClip,ColorClip
 from moviepy.video.fx.resize import resize
 import tempfile 
 
 
-os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+# os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
+
+
+
+url = urlparse(os.environ["DATABASE_URL"])
+
+# Decode the base64 certificate
+cert_decoded = base64.b64decode(os.environ['ROOT_CERT_BASE64'])
+
+# Define the path to save the certificate
+cert_path = '/opt/render/.postgresql/root.crt'
+os.makedirs(os.path.dirname(cert_path), exist_ok=True)
+
+# Write the certificate to the file
+with open(cert_path, 'wb') as cert_file:
+    cert_file.write(cert_decoded)
+
+# Set up the connection string with the path to the certificate
+# conn = psycopg2.connect(
+#     host=url.hostname,
+#     port=url.port,
+#     dbname=url.path[1:],
+#     user=url.username,
+#     password=url.password,
+#     sslmode='verify-full',
+#     sslrootcert=cert_path
+# )
 
 
 app = Flask(__name__)
@@ -25,7 +52,15 @@ app.config['JWT_SECRET_KEY'] = 'jwt_secret_key_here'
 jwt = JWTManager(app)
 
 try:
-    connection = psycopg2.connect(os.environ["DATABASE_URL"])
+    connection = psycopg2.connect(
+        host=url.hostname,
+        port=url.port,
+        dbname=url.path[1:],
+        user=url.username,
+        password=url.password,
+        sslmode='verify-full',
+        sslrootcert=cert_path
+    )
 except psycopg2.OperationalError as e:
     print(f"Error connecting to the database: {e}")
 
@@ -412,3 +447,4 @@ def logout():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5010)
+
