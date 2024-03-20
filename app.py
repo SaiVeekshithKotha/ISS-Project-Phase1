@@ -16,7 +16,7 @@ import tempfile
 
 
 os.environ["DATABASE_URL"] = "postgresql://sai:4CZqNZiXY9EDW6roLqvfKw@saiveekshith-8943.8nk.gcp-asia-southeast1.cockroachlabs.cloud:26257/project_database?sslmode=verify-full"
-os.environ[]
+
 
 
 app = Flask(__name__)
